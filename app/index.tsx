@@ -26,22 +26,23 @@ export default function HomeScreen() {
             Memorize <Text className='text-secondary italic'>facts</Text> in
             much more easy way!
           </ThemedText>
-          <Link
+
+          {/* <Link
             href='/home'
             className='bg-slate-600 border px-5 py-3 mt-6 rounded-full cursor-pointer text-sm'
           >
             <Text className='text-white'>Enter into Abhishek's world</Text>
-          </Link>
+          </Link> */}
 
           <CustomButton
             title='Continue with an email'
             handlePress={() => router.push('/sign-in')}
-            containerStyles='w-[300px]'
+            containerStyles='w-[300px] mt-10'
           />
         </View>
       </ScrollView>
 
-      <StatusBar backgroundColor='#161622' style='light-content'/>
+      <StatusBar backgroundColor='#161622' barStyle='light-content'/>
     </SafeAreaView>
   );
 }
