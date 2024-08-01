@@ -1,3 +1,4 @@
+import React from "react";
 import {
   View,
   Text,
@@ -7,19 +8,16 @@ import {
   Image,
   ActivityIndicator,
 } from "react-native";
-import React, { useEffect, useState } from "react";
-import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation/types";
 import { account } from "@/lib/appwrite";
-import { Link } from "expo-router";
-
-type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
+import { router, useNavigation } from "expo-router";
+import Courses from "./course";
 
 const Home = () => {
-  const navigation = useNavigation<NavigationProp>();
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-const data = [
+  const data = [
     {
       id: "1",
       title: "History",
@@ -59,17 +57,18 @@ const data = [
   ];
 
   const handleViewCourse = (item: { title: string; imageUrl: string }) => {
-    console.log(`View course for: ${item.title}`);
-    navigation.navigate("Course", {
+    navigation.navigate("course", {
       title: item.title,
       imageUrl: item.imageUrl,
     });
   };
 
-  const [userName, setUserName] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
 
-  useEffect(() => {
+
+  const [userName, setUserName] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState<boolean>(true);
+
+  React.useEffect(() => {
     const fetchUser = async () => {
       try {
         const user = await account.get();
@@ -85,14 +84,14 @@ const data = [
   }, []);
 
   return (
-    <SafeAreaView className='bg-gray-100 p-4 rounded-md'>
+    <SafeAreaView className='bg-gray-100 p-4 pb-52 rounded-md'>
       {loading ? (
         <View className='flex-1 items-center justify-center'>
           <ActivityIndicator size='large' color='#FF5722' />
         </View>
       ) : (
         <>
-          <Text className='text-2xl font-bold text-center mb-6 mt-5'>
+          <Text className='text-2xl font-bold text-center mb-6 mt-8'>
             Welcome, {userName || "User"}!
           </Text>
           <FlatList
@@ -119,11 +118,11 @@ const data = [
                       </Text>
                     </Pressable>
                     <Pressable
-                      onPress={() => handleViewCourse(item)}
+                      onPress={() => router.push("/bookmark")}
                       className='bg-green-500 p-2 rounded-lg flex-1 ml-1'
                     >
                       <Text className='text-white text-center text-sm font-medium'>
-                        <Link href='/bookmark'>Buy Now</Link>
+                        Buy Now
                       </Text>
                     </Pressable>
                   </View>
@@ -133,6 +132,7 @@ const data = [
           />
         </>
       )}
+      <Text className="mt-2 text-center text-lg font-psemibold tracking-tighter">App developed by @ashusnapx + @mischevious_baka</Text>
     </SafeAreaView>
   );
 };

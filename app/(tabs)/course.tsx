@@ -1,25 +1,69 @@
-import { View, Text, Image, SafeAreaView } from "react-native";
 import React from "react";
-import { RouteProp, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from "../../navigation/types"; 
+import { View, Text, FlatList } from "react-native";
+import { useRoute } from "@react-navigation/native";
 
-type CourseRouteProp = RouteProp<RootStackParamList, "Course">;
+const chaptersData: Record<
+  string,
+  Array<{ id: string; name: string; importantFor: string; pyq: string }>
+> = {
+  History: [
+    {
+      id: "1",
+      name: "Ancient India",
+      importantFor: "Prelims",
+      pyq: "2019, 2021",
+    },
+    {
+      id: "2",
+      name: "Medieval India",
+      importantFor: "Mains",
+      pyq: "2018, 2020",
+    },
+  ],
+  Polity: [
+    {
+      id: "1",
+      name: "Fundamentals of Indian Constitution",
+      importantFor: "Prelims",
+      pyq: "2019, 2022",
+    },
+    {
+      id: "2",
+      name: "State Governments",
+      importantFor: "Mains",
+      pyq: "2017, 2021",
+    },
+  ],
+  // Add other subjects and chapters as needed
+};
 
 const Course = () => {
-  const route = useRoute<CourseRouteProp>();
-  const { title, imageUrl } = route.params;
+  const route = useRoute();
+  const { title: course } = route.params as { title?: string }; // Use correct parameter name
+
+  const chapters = course ? chaptersData[course] || [] : [];
 
   return (
-    <SafeAreaView className='flex-1 bg-gray-100 p-4'>
-      <View className='items-center'>
-        <Text className='text-4xl font-bold mb-4'>{title}</Text>
-        <Image
-          source={{ uri: imageUrl }}
-          className='w-64 h-64 rounded-lg'
-          resizeMode='cover'
-        />
-      </View>
-    </SafeAreaView>
+    <View className='flex-1 p-4 bg-gray-100 mt-9'>
+      <Text className='text-2xl font-bold mb-4'>
+        {course ? `${course} - Chapters` : "No Course Selected"}
+      </Text>
+      <FlatList
+        data={chapters}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => (
+          <View className='bg-white p-4 mb-3 rounded-lg shadow-md'>
+            <Text className='text-lg font-semibold'>{item.name}</Text>
+            <Text className='text-sm text-gray-600'>
+              Important for: {item.importantFor}
+            </Text>
+            <Text className='text-sm text-gray-600'>
+              PYQ Questions Asked: {item.pyq}
+            </Text>
+          </View>
+        )}
+      />
+    </View>
   );
 };
 

@@ -10,16 +10,16 @@ const Bookmark = () => {
     <ScrollView className='flex-1 bg-gray-100 p-4'>
       {/* QR Code Section */}
       <View className='mb-6 items-center'>
+        <Text className='text-lg font-semibold mt-5'>Scan the QR Code</Text>
         <Image
           source={images.payment}
-          className='mt-10 w-80 h-96 rounded-md'
-          resizeMode='cover'
+          className='mt-10 w-full h-[300px] rounded-md scale-125'
+          resizeMode='contain'
         />
-        <Text className='text-lg font-semibold mt-2'>Scan the QR Code</Text>
       </View>
 
       {/* UPI IDs Section */}
-      <View className='mb-6'>
+      <View className='mb-6 mt-5'>
         <Text className='text-xl font-bold mb-2'>UPI IDs</Text>
         {upiIds.map((upiId, index) => (
           <Text key={index} className='text-lg mb-1'>
