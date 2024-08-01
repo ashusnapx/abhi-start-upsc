@@ -64,24 +64,6 @@ const TabsLayout = () => {
         }}
       />
 
-      {/* course screen */}
-      <Tabs.Screen
-        name='course'
-        options={{
-          title: "Course",
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            // <TabIcon
-            //   icon={icons.bookmark}
-            //   color={color}
-            //   name='Courses'
-            //   focused={focused}
-            // />
-            <></>
-          ),
-        }}
-      />
-
       {/* bookmark screen */}
       <Tabs.Screen
         name='bookmark'

@@ -12,7 +12,7 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { RootStackParamList } from "../../navigation/types";
 import { account } from "@/lib/appwrite";
 import { router, useNavigation } from "expo-router";
-import Courses from "./course";
+import Courses from "../course";
 
 const Home = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
