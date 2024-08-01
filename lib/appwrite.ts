@@ -46,7 +46,7 @@ export const createUser = async (
   email: string | undefined,
   password: string,
   name: string | undefined
-): Promise<void> => {
+) => {
   if (!email || !name) {
     console.error("Email and name are required.");
     return;
@@ -76,11 +76,21 @@ export const createUser = async (
   }
 };
 
-export async function signIn(email: any, password: any) {
+export async function signIn(email: string, password: string) {
   try {
     const session = await account.createEmailPasswordSession(email, password);
+    console.log("User signed in successfully:", session);
     return session;
   } catch (error) {
-    throw new Error();
+    if (error instanceof Error) {
+      // Handle the error if it's an instance of the built-in Error class
+      console.error("Error signing in:", error.message);
+    } else {
+      // Handle other types of errors (e.g., if the error is an object or string)
+      console.error("An unknown error occurred during sign-in:", error);
+    }
+    throw new Error("Failed to sign in.");
   }
 }
+
+export { account };

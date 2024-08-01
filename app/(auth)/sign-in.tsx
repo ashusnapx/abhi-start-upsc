@@ -1,9 +1,17 @@
-import { Text, SafeAreaView, ScrollView, View, Image } from "react-native";
-import React, { useState } from "react";
+import {
+  Text,
+  SafeAreaView,
+  ScrollView,
+  View,
+  Image,
+  Alert,
+} from "react-native";
+import React, { useState, useEffect } from "react";
 import { images } from "@/constants";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
+import { signIn, account } from "@/lib/appwrite"; // Import account for session check
 
 const SignIn = () => {
   const [form, setForm] = useState({
@@ -11,11 +19,46 @@ const SignIn = () => {
     password: "",
   });
 
-  // submit form details
-  const submit = () => {};
-
-  // loading state when user click on sign in/up button
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const session = await account.getSession("current");
+        console.table("Active session found:", session); // Log session details
+        router.replace("/home"); // Redirect to home if session is active
+      } catch (error) {
+        router.replace("/sign-up");
+        console.table("Session check error:", error); // Log session check errors
+        // Here you can handle cases where the session is not found or is invalid
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  const submit = async () => {
+    if (form.email === "" || form.password === "") {
+      Alert.alert(
+        "Error",
+        "Please fill all the fields correctly, my future aspirant"
+      );
+      return; // Early return if validation fails
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await signIn(form.email, form.password);
+      router.replace("/home"); // Redirect to home on successful sign-in
+    } catch (error: any) {
+      const errorMessage = error?.message || "An unknown error occurred";
+      Alert.alert("Error", errorMessage);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <SafeAreaView className='bg-primary h-full'>
       <ScrollView>
@@ -29,7 +72,6 @@ const SignIn = () => {
             Login to clear UPSC
           </Text>
 
-          {/* take users email */}
           <FormField
             title='Email'
             value={form.email}
@@ -38,15 +80,14 @@ const SignIn = () => {
             keyboardType='email-address'
           />
 
-          {/* take users password */}
           <FormField
             title='Password'
             value={form.password}
             handleTextChange={(e: any) => setForm({ ...form, password: e })}
             otherStyles='mt-7'
+            // secureTextEntry={true}
           />
 
-          {/* button for finalizing sign in/ sign up */}
           <CustomButton
             title='Sign In'
             handlePress={submit}

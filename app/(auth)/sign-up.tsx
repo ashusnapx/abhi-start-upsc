@@ -20,28 +20,35 @@ const SignUp = () => {
     password: "",
   });
 
-  // submit form details
+  // Loading state when user clicks on sign in/up button
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Submit form details
   const submit = async () => {
     if (!form.name || !form.email || !form.password) {
       Alert.alert(
         "Error",
-        "Please fill all the fields correctly my future aspirant"
+        "Please fill all the fields correctly, my future aspirant!"
       );
+      return; // Return early to avoid submitting incomplete forms
     }
+
     setIsSubmitting(true);
 
     try {
       const result = await createUser(form.email, form.password, form.name);
       router.replace("/home");
     } catch (error: any) {
-      Alert.alert("Error", error.message);
+      const errorMessage =
+        typeof error.message === "string"
+          ? error.message
+          : "An unknown error occurred. Please try again.";
+      Alert.alert("Error", errorMessage);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // loading state when user click on sign in/up button
-  const [isSubmitting, setIsSubmitting] = useState(false);
   return (
     <SafeAreaView className='bg-primary h-full'>
       <ScrollView>
@@ -55,7 +62,7 @@ const SignUp = () => {
             Sign Up to clear UPSC
           </Text>
 
-          {/* take users name */}
+          {/* Take user's name */}
           <FormField
             title='Name'
             value={form.name}
@@ -63,7 +70,7 @@ const SignUp = () => {
             otherStyles='mt-7'
           />
 
-          {/* take users email */}
+          {/* Take user's email */}
           <FormField
             title='Email'
             value={form.email}
@@ -72,15 +79,16 @@ const SignUp = () => {
             keyboardType='email-address'
           />
 
-          {/* take users password */}
+          {/* Take user's password */}
           <FormField
             title='Password'
             value={form.password}
             handleTextChange={(e: any) => setForm({ ...form, password: e })}
             otherStyles='mt-7'
+            placeholder='Password length should be min. 8'
           />
 
-          {/* button for finalizing sign in/ sign up */}
+          {/* Button for finalizing sign in/sign up */}
           <CustomButton
             title='Sign Up'
             handlePress={submit}
