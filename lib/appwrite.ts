@@ -93,4 +93,30 @@ export async function signIn(email: string, password: string) {
   }
 }
 
+// Function to get user details
+export const getUserDetails = async () => {
+  try {
+    // Get the current user's account information
+    const currentUser = await account.get();
+    const userId = currentUser.$id;
+
+    // Fetch the user document from the database
+    const userDocument = await database.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      userId
+    );
+
+    if (!userDocument) {
+      throw new Error("User document not found.");
+    }
+
+    return userDocument;
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    throw error;
+  }
+};
+
+
 export { account };

@@ -5,12 +5,21 @@ import {
   FlatList,
   Pressable,
   Image,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../../navigation/types";
+import { account } from "@/lib/appwrite";
+import { Link } from "expo-router";
+
+type NavigationProp = StackNavigationProp<RootStackParamList, "Home">;
 
 const Home = () => {
-  // Sample data array with image URLs
-  const data = [
+  const navigation = useNavigation<NavigationProp>();
+
+const data = [
     {
       id: "1",
       title: "History",
@@ -49,38 +58,81 @@ const Home = () => {
     },
   ];
 
-  // Function to handle button press
-  const handleViewCourse = (title: string) => {
-    console.log(`View course for: ${title}`);
-    // Navigate to the course details page
+  const handleViewCourse = (item: { title: string; imageUrl: string }) => {
+    console.log(`View course for: ${item.title}`);
+    navigation.navigate("Course", {
+      title: item.title,
+      imageUrl: item.imageUrl,
+    });
   };
 
+  const [userName, setUserName] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await account.get();
+        setUserName(user.name); // Assuming 'name' is a field in your Appwrite user data
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
   return (
-    <SafeAreaView className='bg-gray-100 p-4 mt-10'>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View className='bg-white rounded-lg shadow-md mb-4 p-4 flex-row items-center'>
-            <View className='flex-1'>
-              <Text className='text-xl font-semibold mb-2'>{item.title}</Text>
-              <Pressable
-                onPress={() => handleViewCourse(item.title)}
-                className='bg-blue-500 p-2 rounded-lg'
-              >
-                <Text className='text-white text-center text-lg font-medium'>
-                  View Course
-                </Text>
-              </Pressable>
-            </View>
-            <Image
-              source={{ uri: item.imageUrl }}
-              className='w-32 h-32 rounded-lg ml-4'
-              resizeMode='cover'
-            />
-          </View>
-        )}
-      />
+    <SafeAreaView className='bg-gray-100 p-4 rounded-md'>
+      {loading ? (
+        <View className='flex-1 items-center justify-center'>
+          <ActivityIndicator size='large' color='#FF5722' />
+        </View>
+      ) : (
+        <>
+          <Text className='text-2xl font-bold text-center mb-6 mt-5'>
+            Welcome, {userName || "User"}!
+          </Text>
+          <FlatList
+            data={data}
+            keyExtractor={(item) => item.id}
+            renderItem={({ item }) => (
+              <View className='bg-white rounded-lg shadow-lg mb-4 p-4 flex-row items-center'>
+                <Image
+                  source={{ uri: item.imageUrl }}
+                  className='w-32 h-32 rounded-lg'
+                  resizeMode='cover'
+                />
+                <View className='flex-1 pl-4'>
+                  <Text className='text-xl font-semibold mb-2'>
+                    {item.title}
+                  </Text>
+                  <View className='flex-row justify-between'>
+                    <Pressable
+                      onPress={() => handleViewCourse(item)}
+                      className='bg-red-500 p-2 rounded-lg flex-1 mr-1'
+                    >
+                      <Text className='text-white text-center text-sm font-medium'>
+                        Free Sample
+                      </Text>
+                    </Pressable>
+                    <Pressable
+                      onPress={() => handleViewCourse(item)}
+                      className='bg-green-500 p-2 rounded-lg flex-1 ml-1'
+                    >
+                      <Text className='text-white text-center text-sm font-medium'>
+                        <Link href='/bookmark'>Buy Now</Link>
+                      </Text>
+                    </Pressable>
+                  </View>
+                </View>
+              </View>
+            )}
+          />
+        </>
+      )}
     </SafeAreaView>
   );
 };

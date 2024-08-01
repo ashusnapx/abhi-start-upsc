@@ -1,7 +1,7 @@
 import { View, Text, Image, SafeAreaView } from "react-native";
 import React from "react";
 import { RouteProp, useRoute } from "@react-navigation/native";
-import { RootStackParamList } from "../../navigation/types"; // Adjust the path as necessary
+import { RootStackParamList } from "../../navigation/types"; 
 
 type CourseRouteProp = RouteProp<RootStackParamList, "Course">;
 

@@ -91,7 +91,7 @@ const TabsLayout = () => {
             <TabIcon
               icon={icons.order}
               color={color}
-              name='Orders'
+              name='Payments'
               focused={focused}
             />
           ),

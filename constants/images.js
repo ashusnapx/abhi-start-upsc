@@ -6,6 +6,7 @@ import logo from "../assets/images/logo.png";
 import logoSmall from "../assets/images/logo-small.png";
 import empty from "../assets/images/empty.png";
 import logoNew from "../assets/images/logoNew.png";
+import payment from "../assets/images/payment.png";
 
 export default {
   profile,
@@ -16,4 +17,5 @@ export default {
   logoSmall,
   empty,
   logoNew,
+  payment
 };
