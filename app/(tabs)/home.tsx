@@ -50,7 +50,7 @@ const Home = () => {
     },
     {
       id: "6",
-      title: "Science and Tech",
+      title: "ScienceTech",
       imageUrl:
         "https://media.licdn.com/dms/image/D5612AQF0Vil5fp9aXQ/article-cover_image-shrink_600_2000/0/1661499794085?e=2147483647&v=beta&t=__nCjBBVvYwEZ9YbbgB292kO5-HZO9EnJMyIsYweXOE",
     },

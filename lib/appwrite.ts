@@ -1,4 +1,4 @@
-import { Client, Account, ID, Databases } from "react-native-appwrite";
+import { Client, Account, Databases, Storage, ID } from "react-native-appwrite";
 
 // Define the appwrite configuration interface
 interface AppwriteConfig {
@@ -22,10 +22,11 @@ export const appwriteConfig: AppwriteConfig = {
   storageId: "66aa039a002d0296bdee",
 };
 
-// Initialize the client and account objects
+// Initialize the client, account, database, and storage objects
 let client: Client;
 let account: Account;
 let database: Databases;
+let storage: Storage;
 
 const initializeAppwriteClient = (): void => {
   client = new Client();
@@ -36,12 +37,13 @@ const initializeAppwriteClient = (): void => {
 
   account = new Account(client);
   database = new Databases(client);
+  storage = new Storage(client);
 };
 
 // Call the function to initialize the client
 initializeAppwriteClient();
 
-// Define the function to create a user
+// Function to create a user
 export const createUser = async (
   email: string | undefined,
   password: string,
@@ -76,6 +78,7 @@ export const createUser = async (
   }
 };
 
+// Function to sign in a user
 export async function signIn(email: string, password: string) {
   try {
     const session = await account.createEmailPasswordSession(email, password);
@@ -83,10 +86,8 @@ export async function signIn(email: string, password: string) {
     return session;
   } catch (error) {
     if (error instanceof Error) {
-      // Handle the error if it's an instance of the built-in Error class
       console.error("Error signing in:", error.message);
     } else {
-      // Handle other types of errors (e.g., if the error is an object or string)
       console.error("An unknown error occurred during sign-in:", error);
     }
     throw new Error("Failed to sign in.");
@@ -118,5 +119,16 @@ export const getUserDetails = async () => {
   }
 };
 
+// Function to get a URL for a PDF file stored in the Appwrite bucket
+export const getPdfUrl = async (fileId: string): Promise<string> => {
+  try {
+    // Generate a file download URL from the storage bucket
+    const file = await storage.getFileView(appwriteConfig.storageId, fileId);
+    return file.href; // The URL to access the PDF file
+  } catch (error) {
+    console.error("Error fetching PDF URL:", error);
+    throw new Error("Failed to fetch PDF URL.");
+  }
+};
 
 export { account };
