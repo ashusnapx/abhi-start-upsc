@@ -1,8 +1,8 @@
-// navigation/types.ts
 export type RootStackParamList = {
   Home: undefined;
-  Course: {
+  course: {
     title: string;
     imageUrl: string;
   };
+  bookmark: undefined;
 };

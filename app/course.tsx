@@ -5,7 +5,7 @@ import { chaptersData } from "@/constants/constant";
 
 const Course = () => {
   const route = useRoute();
-  const { title: course } = route.params as { title?: string }; // Use correct parameter name
+  const { title: course } = route.params as { title?: string };
 
   const chapters = course ? chaptersData[course] || [] : [];
 
