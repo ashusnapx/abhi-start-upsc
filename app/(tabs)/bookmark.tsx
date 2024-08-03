@@ -7,7 +7,7 @@ const Bookmark = () => {
   const upiIds = ["example1@upi", "example2@upi", "example3@upi"];
 
   return (
-    <ScrollView className='flex-1 bg-gray-100 p-4'>
+    <ScrollView className='flex-1 bg-black text-white p-4'>
       {/* QR Code Section */}
       <View className='mb-6 items-center'>
         <Text className='text-lg font-semibold mt-5'>Scan the QR Code</Text>
@@ -20,9 +20,9 @@ const Bookmark = () => {
 
       {/* UPI IDs Section */}
       <View className='mb-6 mt-5'>
-        <Text className='text-xl font-bold mb-2'>UPI IDs</Text>
+        <Text className='text-xl font-bold mb-2 text-white'>UPI IDs</Text>
         {upiIds.map((upiId, index) => (
-          <Text key={index} className='text-lg mb-1'>
+          <Text key={index} className='text-lg mb-1 text-white'>
             {upiId}
           </Text>
         ))}
@@ -30,8 +30,10 @@ const Bookmark = () => {
 
       {/* Rules and Regulations Section */}
       <View>
-        <Text className='text-xl font-bold mb-2'>Rules and Regulations</Text>
-        <Text className='text-lg mb-8'>
+        <Text className='text-xl font-bold mb-2 p-4 text-white'>
+          Rules and Regulations
+        </Text>
+        <Text className='text-lg mb-8 text-white p-4'>
           1. Please make sure to enter the correct UPI ID while making payments.
           {"\n"}2. Payments are non-refundable.
           {"\n"}3. Contact support if you face any issues.

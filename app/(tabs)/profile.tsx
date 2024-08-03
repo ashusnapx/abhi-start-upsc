@@ -33,9 +33,9 @@ const Profile = () => {
   }
 
   return (
-    <SafeAreaView className='flex-1 bg-gray-100 p-4'>
+    <SafeAreaView className='flex-1 bg-black text-white p-4'>
       <View className='flex-1 justify-center items-center'>
-        <Text className='text-3xl font-bold text-gray-800 mb-4'>Profile</Text>
+        <Text className='text-3xl font-bold text-white mb-4'>Profile</Text>
         <View className='bg-white p-6 rounded-lg shadow-lg w-full max-w-md'>
           <Text className='text-lg font-semibold text-gray-700 mb-2'>
             Name:

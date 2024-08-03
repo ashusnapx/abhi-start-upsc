@@ -27,13 +27,6 @@ export default function HomeScreen() {
             much more easy way!
           </ThemedText>
 
-          {/* <Link
-            href='/home'
-            className='bg-slate-600 border px-5 py-3 mt-6 rounded-full cursor-pointer text-sm'
-          >
-            <Text className='text-white'>Enter into Abhishek's world</Text>
-          </Link> */}
-
           <CustomButton
             title='Continue with an email'
             handlePress={() => router.push('/sign-in')}

@@ -84,21 +84,21 @@ const Home = () => {
   }, []);
 
   return (
-    <SafeAreaView className='bg-gray-100 p-4 pb-52 rounded-md'>
+    <SafeAreaView className='bg-black p-4 pb-32 rounded-md'>
       {loading ? (
         <View className='flex-1 items-center justify-center'>
           <ActivityIndicator size='large' color='#FF5722' />
         </View>
       ) : (
         <>
-          <Text className='text-2xl font-bold text-center mb-6 mt-8'>
+          <Text className='text-2xl font-bold text-center mb-2 mt-8 border rounded-md text-white'>
             Welcome, {userName || "User"}!
           </Text>
           <FlatList
             data={data}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <View className='bg-white rounded-lg shadow-lg mb-4 p-4 flex-row items-center'>
+              <View className='bg-white rounded-lg shadow-lg mb-4 p-4 flex-row items-center text-center'>
                 <Image
                   source={{ uri: item.imageUrl }}
                   className='w-32 h-32 rounded-lg'
@@ -121,7 +121,7 @@ const Home = () => {
                       onPress={() => router.push("/bookmark")}
                       className='bg-green-500 p-2 rounded-lg flex-1 ml-1'
                     >
-                      <Text className='text-white text-center text-sm font-medium'>
+                      <Text className='text-white text-sm font-medium'>
                         Buy Now
                       </Text>
                     </Pressable>
@@ -132,7 +132,7 @@ const Home = () => {
           />
         </>
       )}
-      <Text className="mt-2 text-center text-lg font-psemibold tracking-tighter">App developed by @ashusnapx + @mischevious_baka</Text>
+      <Text className="mt-2 text-center text-sm font-psemibold tracking-tighter text-white">App developed by @ashusnapx + @mischevious_baka</Text>
     </SafeAreaView>
   );
 };
