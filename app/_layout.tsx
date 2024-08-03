@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import * as ScreenCapture from "expo-screen-capture";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -18,6 +19,23 @@ const RootLayout = () => {
   });
 
   useEffect(() => {
+    const preventScreenCapture = async () => {
+      try {
+        await ScreenCapture.preventScreenCaptureAsync();
+      } catch (error) {
+        console.error("Error preventing screen capture:", error);
+      }
+    };
+
+    preventScreenCapture();
+
+    // Cleanup function to re-enable screen capture when the component is unmounted
+    return () => {
+      ScreenCapture.allowScreenCaptureAsync();
+    };
+  }, []);
+
+  useEffect(() => {
     if (error) throw error;
 
     if (fontsLoaded) {
@@ -28,6 +46,7 @@ const RootLayout = () => {
   if (!fontsLoaded && !error) {
     return null;
   }
+
   return (
     <Stack>
       <Stack.Screen name='index' options={{ headerShown: false }} />
