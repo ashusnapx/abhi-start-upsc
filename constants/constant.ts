@@ -1,3 +1,10 @@
+// Define the CourseData type
+interface CourseData {
+  id: string;
+  title: string;
+  imageUrl: string;
+}
+
 export const chaptersData: Record<
   string,
   Array<{
@@ -233,3 +240,44 @@ export const chaptersData: Record<
     },
   ],
 };
+
+export const COURSES: CourseData[] = [
+  {
+    id: "1",
+    title: "History",
+    imageUrl:
+      "https://dualcreditathome.com/wp-content/uploads/2014/02/history.jpg",
+  },
+  {
+    id: "2",
+    title: "Polity",
+    imageUrl:
+      "https://blogassets.leverageedu.com/blog/wp-content/uploads/2020/04/13200455/Indian-Polity.jpg",
+  },
+  {
+    id: "3",
+    title: "Geography",
+    imageUrl:
+      "https://geographicbook.com/wp-content/uploads/2023/06/What-is-Geography.jpg",
+  },
+  {
+    id: "4",
+    title: "Ethics",
+    imageUrl:
+      "https://www.scu.edu/media/mobi/blog-variants/Ethics-Blog-760x550-760x550.png",
+  },
+  {
+    id: "5",
+    title: "International Relations",
+    imageUrl:
+      "https://www1.wellesley.edu/sites/default/files/assets/departments/politicalscience/irlanding.png",
+  },
+  {
+    id: "6",
+    title: "ScienceTech",
+    imageUrl:
+      "https://media.licdn.com/dms/image/D5612AQF0Vil5fp9aXQ/article-cover_image-shrink_600_2000/0/1661499794085?e=2147483647&v=beta&t=__nCjBBVvYwEZ9YbbgB292kO5-HZO9EnJMyIsYweXOE",
+  },
+];
+
+
