@@ -8,7 +8,6 @@ import {
   Alert,
 } from "react-native";
 import { database, appwriteConfig } from "@/lib/appwrite";
-import { Query } from "react-native-appwrite";
 import { Picker } from "@react-native-picker/picker";
 import CustomButton from "@/components/CustomButton";
 
@@ -48,15 +47,18 @@ const Create = () => {
 
       await database.createDocument(
         appwriteConfig.databaseId,
-        appwriteConfig.chapterCollectionId,
+        appwriteConfig.subjectCollectionId, // Correct collection ID for subjects
         "unique()", // Or any unique ID generation strategy
         {
           title,
-          imageUrl,
-          price,
+          subjectImageLink: imageUrl, // Correct attribute for image URL
+          price: parseInt(price, 10), // Ensure price is an integer
         }
       );
       Alert.alert("Success", "Course created successfully!");
+      setTitle("");
+      setImageUrl("");
+      setPrice("");
     } catch (error) {
       console.error("Error creating course:", error);
       Alert.alert("Error", "Failed to create course.");
@@ -72,17 +74,22 @@ const Create = () => {
 
       await database.createDocument(
         appwriteConfig.databaseId,
-        appwriteConfig.subjectCollectionId,
-        "unique()",
+        appwriteConfig.chapterCollectionId, // Correct collection ID for chapters
+        "unique()", // Or any unique ID generation strategy
         {
           title,
           importantFor,
           pdfLink,
-          price,
+          price: parseInt(price, 10), // Ensure price is an integer
           subjectId,
         }
       );
       Alert.alert("Success", "Chapter created successfully!");
+      setTitle("");
+      setImportantFor("");
+      setPdfLink("");
+      setPrice("");
+      setSubjectId(null);
     } catch (error) {
       console.error("Error creating chapter:", error);
       Alert.alert("Error", "Failed to create chapter.");
