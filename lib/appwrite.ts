@@ -1,4 +1,10 @@
-import { Client, Account, Databases, Storage, ID } from "react-native-appwrite";
+import {
+  Client,
+  Account,
+  Databases,
+  ID,
+  AppwriteException,
+} from "react-native-appwrite";
 
 // Define the appwrite configuration interface
 interface AppwriteConfig {
@@ -7,7 +13,9 @@ interface AppwriteConfig {
   projectId: string;
   databaseId: string;
   usersCollectionId: string;
-  courseCollectionId: string;
+  subjectCollectionId: string;
+  chapterCollectionId: string;
+  purchasesCollectionId: string;
   storageId: string;
 }
 
@@ -17,16 +25,17 @@ export const appwriteConfig: AppwriteConfig = {
   platform: "com.ashu.upsc",
   projectId: "66a9ff3c003154bc06ab",
   databaseId: "66aa0103000dc64e1194",
-  usersCollectionId: "66aa0124000c0326231e",
-  courseCollectionId: "66aa0156003dc4aaba6b",
+  usersCollectionId: "66aef9a8000c3a7b2ce4",
+  subjectCollectionId: "66aefa6000108853cf04",
+  chapterCollectionId: "66aefac7000c44fc0585",
+  purchasesCollectionId: "66aefb4a0036e03da96a",
   storageId: "66aa039a002d0296bdee",
 };
 
-// Initialize the client, account, database, and storage objects
+// Initialize the client, account, and database objects
 let client: Client;
 let account: Account;
 let database: Databases;
-let storage: Storage;
 
 const initializeAppwriteClient = (): void => {
   client = new Client();
@@ -37,7 +46,6 @@ const initializeAppwriteClient = (): void => {
 
   account = new Account(client);
   database = new Databases(client);
-  storage = new Storage(client);
 };
 
 // Call the function to initialize the client
@@ -45,23 +53,24 @@ initializeAppwriteClient();
 
 // Function to create a user
 export const createUser = async (
-  email: string | undefined,
+  email: string,
   password: string,
-  name: string | undefined
+  name: string,
+  role: "admin" | "student"
 ) => {
-  if (!email || !name) {
-    console.error("Email and name are required.");
-    return;
-  }
-
   try {
+    // Step 1: Create the user account
     const newAccount = await account.create(ID.unique(), email, password, name);
     if (!newAccount) {
-      throw new Error("Failed to create user account.");
+      throw new AppwriteException("Failed to create user account.");
     }
     console.log("User account created successfully:", newAccount);
+
+    // Step 2: Authenticate the user immediately after account creation
     await signIn(email, password);
-    const newUser: any = await database.createDocument(
+
+    // Step 3: Create a user document in the database with all required fields
+    const newUser = await database.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.usersCollectionId,
       ID.unique(),
@@ -69,12 +78,23 @@ export const createUser = async (
         accountId: newAccount.$id,
         email,
         name,
+        password, // Include the password here if needed
+        role,
+        isActive: true,
+        subscriptionEnd: null,
+        purchasedSubjects: [],
+        purchasedChapters: [],
       }
     );
     console.log("User document created successfully:", newUser);
     return newUser;
   } catch (error) {
-    console.error("Error creating user account:", error);
+    if (error instanceof AppwriteException) {
+      console.error("Error creating user account:", error.message);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    throw error;
   }
 };
 
@@ -85,50 +105,13 @@ export async function signIn(email: string, password: string) {
     console.log("User signed in successfully:", session);
     return session;
   } catch (error) {
-    if (error instanceof Error) {
+    if (error instanceof AppwriteException) {
       console.error("Error signing in:", error.message);
     } else {
-      console.error("An unknown error occurred during sign-in:", error);
+      console.error("Unexpected error during sign-in:", error);
     }
     throw new Error("Failed to sign in.");
   }
 }
 
-// Function to get user details
-export const getUserDetails = async () => {
-  try {
-    // Get the current user's account information
-    const currentUser = await account.get();
-    const userId = currentUser.$id;
-
-    // Fetch the user document from the database
-    const userDocument = await database.getDocument(
-      appwriteConfig.databaseId,
-      appwriteConfig.usersCollectionId,
-      userId
-    );
-
-    if (!userDocument) {
-      throw new Error("User document not found.");
-    }
-
-    return userDocument;
-  } catch (error) {
-    console.error("Error fetching user details:", error);
-    throw error;
-  }
-};
-
-// Function to get a URL for a PDF file stored in the Appwrite bucket
-export const getPdfUrl = async (fileId: string): Promise<string> => {
-  try {
-    // Generate a file download URL from the storage bucket
-    const file = await storage.getFileView(appwriteConfig.storageId, fileId);
-    return file.href; // The URL to access the PDF file
-  } catch (error) {
-    console.error("Error fetching PDF URL:", error);
-    throw new Error("Failed to fetch PDF URL.");
-  }
-};
-
-export { account };
+export { account, database };
