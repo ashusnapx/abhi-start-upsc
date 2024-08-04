@@ -8,12 +8,14 @@ const CustomButton = ({
   containerStyles,
   textStyles,
   isLoading,
+  disabled,
 }: {
   title: any;
   handlePress: any;
   containerStyles: any;
   textStyles?: any;
   isLoading?: any;
+  disabled?: boolean;
 }) => {
   return (
     <TouchableOpacity

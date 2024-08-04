@@ -5,39 +5,82 @@ import {
   View,
   Image,
   Alert,
+  TextInput,
 } from "react-native";
 import React, { useState } from "react";
 import { images } from "@/constants";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
 import { Link, router } from "expo-router";
-import { createUser } from "@/lib/appwrite";
+import { appwriteService } from "@/lib/appwrite";
 
 const SignUp = () => {
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    name: string;
+    email: string;
+    password: string;
+    role: "admin" | "student";
+    secretCode: string;
+  }>({
     name: "",
     email: "",
     password: "",
+    role: "student",
+    secretCode: "",
   });
 
-  // Loading state when user clicks on sign in/up button
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSignUpEnabled, setIsSignUpEnabled] = useState(false);
 
-  // Submit form details
+  const handleTextChange = (field: string, value: string) => {
+    if (field === "role") {
+      if (value === "admin") {
+        setIsAdmin(true);
+        setIsSignUpEnabled(false);
+      } else if (value === "student") {
+        setIsAdmin(false);
+        setIsSignUpEnabled(true);
+      }
+    }
+
+    if (field === "secretCode") {
+      if (value === "1234") {
+        setIsSignUpEnabled(true);
+      } else {
+        setIsSignUpEnabled(false);
+      }
+    }
+
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
   const submit = async () => {
-    if (!form.name || !form.email || !form.password) {
-      Alert.alert(
-        "Error",
-        "Please fill all the fields correctly, my future aspirant!"
-      );
-      return; // Return early to avoid submitting incomplete forms
+    if (
+      !form.name ||
+      !form.email ||
+      !form.password ||
+      (isAdmin && !isSignUpEnabled)
+    ) {
+      Alert.alert("Error", "Please fill all the fields correctly.");
+      return;
     }
 
     setIsSubmitting(true);
 
     try {
-      const result = await createUser(form.email, form.password, form.name);
-      router.replace("/home");
+      const newUser = await appwriteService.createUser(
+        form.email,
+        form.password,
+        form.name,
+        form.role
+      );
+
+      // Navigate to the home page and pass the user role
+      router.replace({
+        pathname: "/home",
+        params: { role: form.role },
+      });
     } catch (error: any) {
       const errorMessage =
         typeof error.message === "string"
@@ -62,38 +105,61 @@ const SignUp = () => {
             Sign Up to clear UPSC
           </Text>
 
-          {/* Take user's name */}
+          {/* Name */}
           <FormField
             title='Name'
             value={form.name}
-            handleTextChange={(e: any) => setForm({ ...form, name: e })}
+            handleTextChange={(e: any) => handleTextChange("name", e)}
             otherStyles='mt-7'
           />
 
-          {/* Take user's email */}
+          {/* Email */}
           <FormField
             title='Email'
             value={form.email}
-            handleTextChange={(e: any) => setForm({ ...form, email: e })}
+            handleTextChange={(e: any) => handleTextChange("email", e)}
             otherStyles='mt-7'
             keyboardType='email-address'
           />
 
-          {/* Take user's password */}
+          {/* Password */}
           <FormField
             title='Password'
             value={form.password}
-            handleTextChange={(e: any) => setForm({ ...form, password: e })}
+            handleTextChange={(e: any) => handleTextChange("password", e)}
             otherStyles='mt-7'
             placeholder='Password length should be min. 8'
+            secureTextEntry
           />
 
-          {/* Button for finalizing sign in/sign up */}
+          {/* Role Selection */}
+          <FormField
+            title='Role (student or admin)'
+            value={form.role}
+            handleTextChange={(e: any) =>
+              handleTextChange("role", e.toLowerCase())
+            }
+            otherStyles='mt-7'
+          />
+
+          {/* Secret Code Input for Admins */}
+          {isAdmin && (
+            <TextInput
+              placeholder='Enter Secret Code'
+              value={form.secretCode}
+              onChangeText={(e) => handleTextChange("secretCode", e)}
+              secureTextEntry
+              className='bg-white text-black mt-7 px-4 py-3 rounded-md'
+            />
+          )}
+
+          {/* Sign Up Button */}
           <CustomButton
             title='Sign Up'
             handlePress={submit}
             containerStyles='mt-7'
             isLoading={isSubmitting}
+            disabled={!isSignUpEnabled}
           />
 
           <View className='flex-col justify-center pt-5 gap-2 text-center items-center'>

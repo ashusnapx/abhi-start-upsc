@@ -1,7 +1,5 @@
 import { View, Text, TextInput, Image } from "react-native";
 import React, { useState } from "react";
-import { TouchableOpacity } from "react-native-gesture-handler";
-import { icons } from "@/constants";
 
 type FormFieldProps = {
   title: string;
@@ -10,6 +8,7 @@ type FormFieldProps = {
   handleTextChange: (text: string) => void;
   otherStyles?: string;
   keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
+  secureTextEntry?: boolean;
 };
 
 const FormField = ({
