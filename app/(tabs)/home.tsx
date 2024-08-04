@@ -56,35 +56,37 @@ const Home = () => {
 
   const buttonData = [
     {
-      bgColor: "bg-red-500",
+      bgColor: "bg-blue-500",
       text: "Free Sample",
       onPress: (item: CourseData) => handleViewCourse(item),
-      margin: "mr-1",
+      margin: "mr-2",
     },
     {
       bgColor: "bg-green-500",
       text: "Buy Now",
       onPress: () => navigation.navigate("bookmark"),
-      margin: "ml-1",
+      margin: "ml-2",
     },
   ];
 
   // Render each course item
   const renderItem: ListRenderItem<CourseData> = ({ item }) => (
-    <View className='bg-white rounded-lg shadow-lg mb-4 p-4 flex-row items-center text-center'>
+    <View className='bg-white rounded-lg shadow-lg mb-4 p-4 flex-row items-center'>
       <Image
         source={{ uri: item.imageUrl }}
-        className='w-32 h-32 rounded-lg'
+        className='w-36 h-36 rounded-lg'
         resizeMode='cover'
       />
       <View className='flex-1 pl-4'>
-        <Text className='text-xl font-semibold mb-2'>{item.title}</Text>
+        <Text className='text-xl font-semibold text-gray-800 mb-2'>
+          {item.title}
+        </Text>
         <View className='flex-row justify-between'>
           {buttonData.map(({ bgColor, text, onPress, margin }) => (
             <Pressable
               key={text}
               onPress={() => onPress(item)}
-              className={`${bgColor} p-2 rounded-lg flex-1 ${margin}`}
+              className={`${bgColor} p-3 rounded-md flex-1 ${margin}`}
             >
               <Text className='text-white text-center text-sm font-medium'>
                 {text}
@@ -97,26 +99,34 @@ const Home = () => {
   );
 
   return (
-    <SafeAreaView className='bg-black p-4 pb-32 rounded-md'>
+    <SafeAreaView className='bg-gray-900 flex-1 p-4'>
       {loading ? (
         <View className='flex-1 items-center justify-center'>
-          <ActivityIndicator size='large' color='#FF5722' />
+          <ActivityIndicator size='large' color='#4CAF50' />
         </View>
       ) : (
         <>
-          <Text className='text-2xl font-bold text-center mb-2 mt-8 border rounded-md text-white'>
-            Welcome, {userName || "User"}!
-          </Text>
+          <View className='mb-6'>
+            <Text className='text-3xl font-bold text-center text-white mt-6 mb-2'>
+              Welcome, {userName || "User"}!
+            </Text>
+            <Text className='text-center text-gray-400'>
+              Explore our latest courses and get started today.
+            </Text>
+          </View>
           <FlatList
             data={COURSES}
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
+            contentContainerStyle={{ paddingBottom: 80 }}
           />
+          <View className='absolute bottom-0 left-0 right-0 py-2 bg-gray-800'>
+            <Text className='text-center text-sm text-gray-400'>
+              App developed by @ashusnapx 
+            </Text>
+          </View>
         </>
       )}
-      <Text className='mt-2 text-center text-sm font-psemibold tracking-tighter text-white'>
-        App developed by @ashusnapx + @mischevious_baka
-      </Text>
     </SafeAreaView>
   );
 };

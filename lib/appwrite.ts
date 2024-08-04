@@ -4,6 +4,7 @@ import {
   Databases,
   ID,
   AppwriteException,
+  Query,
 } from "react-native-appwrite";
 
 // Define the appwrite configuration interface
@@ -113,5 +114,30 @@ export async function signIn(email: string, password: string) {
     throw new Error("Failed to sign in.");
   }
 }
+
+export const fetchUserDetails = async (): Promise<any> => {
+  try {
+    const user = await account.get();
+    const accountId = user.$id;
+
+    const userDocResponse = await database.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      [Query.equal("accountId", accountId)]
+    );
+
+    if (userDocResponse.documents.length > 0) {
+      return userDocResponse.documents[0]; // Get the first matching document
+    } else {
+      throw new Error("User document not found.");
+    }
+  } catch (error) {
+    console.error("Error fetching user details:", error);
+    // Make sure the error thrown has a message property
+    throw new Error(
+      error instanceof Error ? error.message : "An unknown error occurred."
+    );
+  }
+};
 
 export { account, database };
