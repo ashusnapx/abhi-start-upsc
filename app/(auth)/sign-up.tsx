@@ -32,40 +32,43 @@ const SignUp = () => {
   const handleTextChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
 
-    if (field === "role") {
+    // Check if the role is 'admin' and secret code is correct or role is 'student'
+    if (field === "role" || field === "secretCode") {
+      const isValidSecretCode = form.secretCode === "1234";
       setIsSignUpEnabled(
-        value === "student" || (value === "admin" && form.secretCode === "1234")
+        form.role === "student" || (form.role === "admin" && isValidSecretCode)
       );
-    }
-
-    if (field === "secretCode") {
-      setIsSignUpEnabled(form.role === "student" || value === "1234");
     }
   };
 
-  const submit = async () => {
+  const validateForm = () => {
     const { name, email, password, role } = form;
+    if (!name || !email || !password) {
+      Alert.alert("Error", "Please fill all fields.");
+      return false;
+    }
 
-    if (
-      !name ||
-      !email ||
-      !password ||
-      (role === "admin" && !isSignUpEnabled)
-    ) {
-      Alert.alert("Error", "Please fill all the fields correctly.");
-      return;
+    if (role === "admin" && form.secretCode !== "1234") {
+      Alert.alert("Error", "Invalid secret code.");
+      return false;
     }
 
     if (password.length < 8 || password.length > 16) {
       Alert.alert("Error", "Password must be between 8 and 16 characters.");
-      return;
+      return false;
     }
+
+    return true;
+  };
+
+  const submit = async () => {
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
 
     try {
-      const newUser = await createUser(email, password, name, role);
-
+      const { name, email, password, role } = form;
+      await createUser(email, password, name, role);
       router.replace("/home"); // Adjust as needed
     } catch (error: any) {
       const errorMessage =
@@ -79,7 +82,7 @@ const SignUp = () => {
   };
 
   return (
-    <SafeAreaView className='bg-primary h-full'>
+    <SafeAreaView className='bg-primary flex-1'>
       <StatusBar backgroundColor='#161622' barStyle='light-content' />
       <ScrollView
         contentContainerStyle={{ flexGrow: 1 }}
