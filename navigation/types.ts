@@ -1,8 +1,5 @@
 export type RootStackParamList = {
   Home: undefined;
-  course: {
-    title: string;
-    imageUrl: string;
-  };
+  course: { subjectId: string };
   bookmark: undefined;
 };

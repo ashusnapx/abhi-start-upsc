@@ -3,9 +3,9 @@ import React, { useState } from "react";
 
 type FormFieldProps = {
   title: string;
-  value: string;
+  value?: string;
   placeholder?: string;
-  handleTextChange: (text: string) => void;
+  handleTextChange?: (text: string) => void;
   otherStyles?: string;
   keyboardType?: "default" | "email-address" | "numeric" | "phone-pad";
   secureTextEntry?: boolean;

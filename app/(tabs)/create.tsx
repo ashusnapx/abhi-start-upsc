@@ -1,42 +1,48 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
-  TextInput,
-  Button,
   SafeAreaView,
   Alert,
+  ScrollView,
+  RefreshControl,
+  StyleSheet,
 } from "react-native";
-import { database, appwriteConfig } from "@/lib/appwrite";
 import { Picker } from "@react-native-picker/picker";
+import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
+import { database, appwriteConfig } from "@/lib/appwrite";
 
 const Create = () => {
   const [view, setView] = useState<"course" | "chapter" | null>(null);
   const [title, setTitle] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [price, setPrice] = useState("");
-  const [importantFor, setImportantFor] = useState("");
+  const [importantFor, setImportantFor] = useState<string>("");
+  const [pyqYear, setPyqYear] = useState("");
   const [pdfLink, setPdfLink] = useState("");
   const [subjectId, setSubjectId] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<any[]>([]);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
+
+  // Fetch subjects for the dropdown
+  const fetchSubjects = useCallback(async () => {
+    try {
+      const subjectResponse = await database.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.subjectCollectionId
+      );
+      setSubjects(subjectResponse.documents);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, []);
 
   useEffect(() => {
-    // Fetch subjects for the dropdown
-    const fetchSubjects = async () => {
-      try {
-        const subjectResponse = await database.listDocuments(
-          appwriteConfig.databaseId,
-          appwriteConfig.subjectCollectionId
-        );
-        setSubjects(subjectResponse.documents);
-      } catch (error) {
-        console.error("Error fetching subjects:", error);
-      }
-    };
-
     fetchSubjects();
-  }, []);
+  }, [fetchSubjects]);
 
   const handleCreateCourse = async () => {
     try {
@@ -47,11 +53,11 @@ const Create = () => {
 
       await database.createDocument(
         appwriteConfig.databaseId,
-        appwriteConfig.subjectCollectionId, // Correct collection ID for subjects
+        appwriteConfig.subjectCollectionId,
         "unique()", // Or any unique ID generation strategy
         {
           title,
-          subjectImageLink: imageUrl, // Correct attribute for image URL
+          subjectImageLink: imageUrl,
           price: parseInt(price, 10), // Ensure price is an integer
         }
       );
@@ -67,19 +73,27 @@ const Create = () => {
 
   const handleCreateChapter = async () => {
     try {
-      if (!title || !importantFor || !pdfLink || !price || !subjectId) {
+      if (
+        !title ||
+        !importantFor ||
+        !pdfLink ||
+        !price ||
+        !subjectId ||
+        !pyqYear
+      ) {
         Alert.alert("Error", "All fields are required.");
         return;
       }
 
       await database.createDocument(
         appwriteConfig.databaseId,
-        appwriteConfig.chapterCollectionId, // Correct collection ID for chapters
+        appwriteConfig.chapterCollectionId,
         "unique()", // Or any unique ID generation strategy
         {
           title,
           importantFor,
           pdfLink,
+          pyqYear,
           price: parseInt(price, 10), // Ensure price is an integer
           subjectId,
         }
@@ -88,6 +102,7 @@ const Create = () => {
       setTitle("");
       setImportantFor("");
       setPdfLink("");
+      setPyqYear("");
       setPrice("");
       setSubjectId(null);
     } catch (error) {
@@ -96,80 +111,130 @@ const Create = () => {
     }
   };
 
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchSubjects();
+  };
+
   if (view === "course") {
     return (
-      <SafeAreaView className='flex-1 p-4 bg-gray-200'>
-        <Text className='text-2xl font-bold mb-4 mt-12'>Create a Course</Text>
-        <TextInput
-          placeholder='Title of Subject'
-          value={title}
-          onChangeText={setTitle}
-          className='mb-4 p-2 border border-gray-300 rounded'
-        />
-        <TextInput
-          placeholder='Image URL for Subject'
-          value={imageUrl}
-          onChangeText={setImageUrl}
-          className='mb-4 p-2 border border-gray-300 rounded'
-        />
-        <TextInput
-          placeholder='Price of Subject'
-          value={price}
-          onChangeText={setPrice}
-          keyboardType='numeric'
-          className='mb-4 p-2 border border-gray-300 rounded'
-        />
-        <Button title='Create Course' onPress={handleCreateCourse} />
-        <Button title='Back' onPress={() => setView(null)} color='gray' />
+      <SafeAreaView className='flex-1 p-4 bg-gray-900'>
+        <ScrollView>
+          <Text className='text-2xl font-bold mb-8 mt-12 text-white'>
+            Create a Course
+          </Text>
+          <FormField
+            title='Title of Subject'
+            value={title}
+            handleTextChange={setTitle}
+            placeholder='Title of Subject'
+          />
+          <FormField
+            title='Image URL for Subject'
+            value={imageUrl}
+            handleTextChange={setImageUrl}
+            placeholder='Image URL for Subject'
+          />
+          <FormField
+            title='Price of Subject'
+            value={price}
+            handleTextChange={setPrice}
+            placeholder='Price of Subject'
+            keyboardType='numeric'
+          />
+          <CustomButton
+            title='Create Course'
+            handlePress={handleCreateCourse}
+            containerStyles='mt-4'
+          />
+          <CustomButton
+            title='Back'
+            handlePress={() => setView(null)}
+            containerStyles='mt-4'
+            textStyles='text-gray-500'
+          />
+        </ScrollView>
       </SafeAreaView>
     );
   }
 
   if (view === "chapter") {
     return (
-      <SafeAreaView className='flex-1 p-4 bg-gray-200'>
-        <Text className='text-2xl font-bold mb-4 mt-12'>Create a Chapter</Text>
-        <TextInput
-          placeholder='Title'
-          value={title}
-          onChangeText={setTitle}
-          className='mb-4 p-2 border border-gray-300 rounded'
-        />
-        <TextInput
-          placeholder='Important For'
-          value={importantFor}
-          onChangeText={setImportantFor}
-          className='mb-4 p-2 border border-gray-300 rounded'
-        />
-        <TextInput
-          placeholder='PDF Link'
-          value={pdfLink}
-          onChangeText={setPdfLink}
-          className='mb-4 p-2 border border-gray-300 rounded'
-        />
-        <TextInput
-          placeholder='Price'
-          value={price}
-          onChangeText={setPrice}
-          keyboardType='numeric'
-          className='mb-4 p-2 border border-gray-300 rounded'
-        />
-        <Picker
-          selectedValue={subjectId}
-          onValueChange={(itemValue) => setSubjectId(itemValue)}
-          className='mb-4'
+      <SafeAreaView className='flex-1 p-4 bg-gray-900'>
+        <ScrollView
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
         >
-          <Picker.Item label='Select Subject' value='' />
-          {subjects.map((subject) => (
-            <Picker.Item
-              key={subject.$id}
-              label={subject.title}
-              value={subject.$id}
-            />
-          ))}
-        </Picker>
-        <Button title='Create Chapter' onPress={handleCreateChapter} />
-        <Button title='Back' onPress={() => setView(null)} color='gray' />
+          <Text className='text-2xl font-bold mb-8 mt-12 text-white'>
+            Create a Chapter
+          </Text>
+          <FormField
+            title='Title'
+            value={title}
+            handleTextChange={setTitle}
+            placeholder='Title'
+          />
+
+          <Picker
+            selectedValue={importantFor}
+            onValueChange={(itemValue) => setImportantFor(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label='Select Importance' value='' />
+            <Picker.Item label='Pre' value='Pre' />
+            <Picker.Item label='Mains' value='Mains' />
+            <Picker.Item label='Pre + Mains' value='Pre + Mains' />
+          </Picker>
+          <FormField
+            title='PYQ Year'
+            value={pyqYear}
+            handleTextChange={setPyqYear}
+            placeholder='PYQ Year'
+            keyboardType='numeric'
+            otherStyles='mb-4'
+          />
+          <FormField
+            title='PDF Link'
+            value={pdfLink}
+            handleTextChange={setPdfLink}
+            placeholder='PDF Link'
+            otherStyles='mb-4'
+          />
+          <FormField
+            title='Price'
+            value={price}
+            handleTextChange={setPrice}
+            placeholder='Price'
+            keyboardType='numeric'
+            otherStyles='mb-4'
+          />
+          <Picker
+            selectedValue={subjectId}
+            onValueChange={(itemValue) => setSubjectId(itemValue)}
+            style={styles.picker}
+          >
+            <Picker.Item label='Select Subject' value='' />
+            {subjects.map((subject) => (
+              <Picker.Item
+                key={subject.$id}
+                label={subject.title}
+                value={subject.$id}
+              />
+            ))}
+          </Picker>
+          <CustomButton
+            title='Create Chapter'
+            handlePress={handleCreateChapter}
+            containerStyles='mt-4'
+          />
+          <CustomButton
+            title='Back'
+            handlePress={() => setView(null)}
+            containerStyles='mt-4'
+            textStyles='text-gray-500'
+          />
+        </ScrollView>
       </SafeAreaView>
     );
   }
@@ -190,5 +255,14 @@ const Create = () => {
     </SafeAreaView>
   );
 };
+
+const styles = StyleSheet.create({
+  picker: {
+    color: "white", // Text color of Picker items
+    backgroundColor: "gray", // Background color for Picker
+    borderRadius: 4, // Optional: Add rounded corners
+    marginBottom: 16, // Optional: Add spacing
+  },
+});
 
 export default Create;

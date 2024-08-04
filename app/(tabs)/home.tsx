@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// Import necessary modules and types
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -7,6 +8,7 @@ import {
   Pressable,
   Image,
   ActivityIndicator,
+  RefreshControl,
   ListRenderItem,
 } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -25,46 +27,49 @@ interface CourseData {
 const Home = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
-  // State to store user's name, subjects, and loading state
+  // State to store user's name, subjects, loading state, and refreshing state
   const [userName, setUserName] = useState<string | null>(null);
   const [subjects, setSubjects] = useState<CourseData[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Fetch user data and subjects from Appwrite on component mount
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Fetch user details
-        const user = await account.get();
-        setUserName(user.name);
+  // Fetch user data and subjects from Appwrite
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
 
-        // Fetch subjects
-        const subjectResponse = await database.listDocuments(
-          appwriteConfig.databaseId,
-          appwriteConfig.subjectCollectionId
-        );
-        setSubjects(
-          subjectResponse.documents.map((doc: any) => ({
-            id: doc.$id,
-            title: doc.title,
-            imageUrl: doc.subjectImageLink,
-          }))
-        );
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Fetch user details
+      const user = await account.get();
+      setUserName(user.name);
 
-    fetchData();
+      // Fetch subjects
+      const subjectResponse = await database.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.subjectCollectionId
+      );
+      setSubjects(
+        subjectResponse.documents.map((doc: any) => ({
+          id: doc.$id,
+          title: doc.title,
+          imageUrl: doc.subjectImageLink,
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   // Handle course selection
   const handleViewCourse = (item: CourseData) => {
     navigation.navigate("course", {
-      title: item.title,
-      imageUrl: item.imageUrl,
+      subjectId: item.id,
     });
   };
 
@@ -112,6 +117,12 @@ const Home = () => {
     </View>
   );
 
+  // Handle refresh action
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchData();
+  };
+
   return (
     <SafeAreaView className='bg-gray-900 flex-1 p-4'>
       {loading ? (
@@ -133,6 +144,9 @@ const Home = () => {
             keyExtractor={(item) => item.id}
             renderItem={renderItem}
             contentContainerStyle={{ paddingBottom: 80 }}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           />
           <View className='absolute bottom-0 left-0 right-0 py-2 bg-gray-800'>
             <Text className='text-center text-sm text-gray-400'>
