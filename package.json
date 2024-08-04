@@ -18,6 +18,7 @@
     "@expo/vector-icons": "^14.0.2",
     "@react-native-community/geolocation": "^3.3.0",
     "@react-native-community/netinfo": "^11.3.2",
+    "@react-native-picker/picker": "^2.7.7",
     "@react-navigation/native": "^6.1.18",
     "@react-navigation/stack": "^6.4.1",
     "expo": "~51.0.24",
@@ -25,6 +26,7 @@
     "expo-font": "~12.0.9",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.20",
+    "expo-screen-capture": "~6.0.1",
     "expo-splash-screen": "~0.27.5",
     "expo-status-bar": "~1.12.1",
     "expo-system-ui": "~3.0.7",
@@ -42,8 +44,7 @@
     "react-native-screens": "3.31.1",
     "react-native-screenshot-prevent": "^1.2.1",
     "react-native-url-polyfill": "^2.0.0",
-    "react-native-web": "~0.19.10",
-    "expo-screen-capture": "~6.0.1"
+    "react-native-web": "~0.19.10"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",

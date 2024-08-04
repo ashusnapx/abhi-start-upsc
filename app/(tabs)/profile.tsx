@@ -56,7 +56,14 @@ const Profile = () => {
             { label: "Email", value: userDetails.email || "N/A" },
             { label: "Password", value: userDetails.password || "N/A" },
             { label: "Role", value: userDetails.role || "N/A" },
-            { label: "Founder", value: "@mischevious_baka" },
+            {
+              label: "Founder",
+              value: "Abhishek Narain AKA @mischevious_baka ",
+            },
+            {
+              label: "Graduate",
+              value: "IIT BHU ",
+            },
           ].map(({ label, value }) => (
             <View key={label} className='mb-4'>
               <Text className='text-lg font-semibold text-gray-700'>

@@ -107,7 +107,7 @@ const Home = () => {
       ) : (
         <>
           <View className='mb-6'>
-            <Text className='text-3xl font-bold text-center text-white mt-6 mb-2'>
+            <Text className='text-3xl font-bold text-center text-white mt-9 mb-2'>
               Welcome, {userName || "User"}!
             </Text>
             <Text className='text-center text-gray-400'>
