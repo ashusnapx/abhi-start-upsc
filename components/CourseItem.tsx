@@ -23,7 +23,7 @@ const CourseItem = ({ item, buttonData }: CourseItemProps) => (
       resizeMode='cover'
     />
     <View className='flex-1 pl-3'>
-      <Text className='text-2xl font-semibold text-gray-800 mb-2'>
+      <Text className='text-2xl font-semibold text-gray-800 mb-2 capitalize'>
         {item.title}
       </Text>
       <View className='flex-row items-center justify-between'>
