@@ -2,30 +2,54 @@ import { useState, useEffect, useCallback } from "react";
 import { database, appwriteConfig, account } from "@/lib/appwrite";
 
 export const useFetchPurchasedChapters = () => {
-  const [purchasedChapterIds, setPurchasedChapterIds] = useState<string[]>([]);
+  const [purchasedChapters, setPurchasedChapters] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchPurchasedChapters = useCallback(async () => {
+    setLoading(true);
     try {
       const user = await account.get();
       const userId = user.$id;
 
-      const response = await database.listDocuments(
+      // Fetch purchases
+      const purchasesResponse = await database.listDocuments(
         appwriteConfig.databaseId,
         appwriteConfig.purchasesCollectionId
       );
+      console.log("Purchases Response:", purchasesResponse);
 
-      const purchasedChapterIds = response.documents
+      // Fetch chapters
+      const chaptersResponse = await database.listDocuments(
+        appwriteConfig.databaseId,
+        appwriteConfig.chapterCollectionId
+      );
+      console.log("Chapters Response:", chaptersResponse);
+
+      // Process documents
+      const chaptersMap = new Map(
+        chaptersResponse.documents.map((doc: any) => [doc.$id, doc])
+      );
+
+      const matchedChapters = purchasesResponse.documents
         .filter((doc: any) => doc.userId.$id === userId)
-        .flatMap((doc: any) => {
-          const chapterIds = doc.chapterId || [];
-          return Array.isArray(chapterIds)
-            ? chapterIds.map((id: any) => id.$id)
-            : [chapterIds.$id];
+        .flatMap((purchaseDoc: any) => {
+          const chapterDoc = chaptersMap.get(purchaseDoc.chapterId);
+          if (chapterDoc) {
+            return {
+              ...chapterDoc,
+              purchaseId: purchaseDoc.$id,
+            };
+          }
+          return [];
         });
 
-      setPurchasedChapterIds(purchasedChapterIds);
+      console.table(matchedChapters);
+
+      setPurchasedChapters(matchedChapters);
     } catch (error) {
       console.error("Error fetching purchased chapters:", error);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -33,5 +57,5 @@ export const useFetchPurchasedChapters = () => {
     fetchPurchasedChapters();
   }, [fetchPurchasedChapters]);
 
-  return purchasedChapterIds;
+  return { purchasedChapters, loading };
 };

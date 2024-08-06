@@ -24,13 +24,16 @@ const Course = () => {
     subjectPrice,
     error: subjectError,
   } = useFetchSubject(subjectId);
+
   const {
     chapters,
-    loading,
+    loading: chaptersLoading,
     error: chaptersError,
     fetchChapters,
   } = useFetchChapters(subjectId);
-  const purchasedChapterIds = useFetchPurchasedChapters();
+
+  const { purchasedChapters, loading: purchasesLoading } =
+    useFetchPurchasedChapters();
 
   const onRefresh = () => {
     fetchChapters();
@@ -40,10 +43,17 @@ const Course = () => {
     Linking.openURL(pdfLink);
   };
 
+  const allChapters = chapters.map((chapter) => ({
+    ...chapter,
+    isPurchased: purchasedChapters.some(
+      (purchased) => purchased.$id === chapter.$id
+    ),
+  }));
+
   return (
     <View className='flex-1 bg-slate-300 p-4'>
       <FlatList
-        data={chapters}
+        data={allChapters}
         keyExtractor={(item) => item.$id}
         ListHeaderComponent={
           <SubjectHeader
@@ -55,13 +65,13 @@ const Course = () => {
         renderItem={({ item }) => (
           <ChapterItem
             chapter={item}
-            isPurchased={purchasedChapterIds.includes(item.$id)}
+            isPurchased={item.isPurchased}
             onViewPDF={handleViewPDF}
           />
         )}
         ListEmptyComponent={() => (
           <View>
-            {loading ? (
+            {chaptersLoading || purchasesLoading ? (
               <ActivityIndicator size='large' color='#0000ff' />
             ) : (
               <Text>No chapters available.</Text>
@@ -69,7 +79,10 @@ const Course = () => {
           </View>
         )}
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={chaptersLoading || purchasesLoading}
+            onRefresh={onRefresh}
+          />
         }
       />
     </View>

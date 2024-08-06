@@ -9,6 +9,7 @@ import { fetchUserDetails } from "@/lib/appwrite";
 import ProfileDetail from "@/components/ProfileDetail";
 import LoadingScreen from "@/components/LoadingScreen";
 import NoDataScreen from "@/components/NoDataScreen";
+import Footer from "@/components/Footer";
 
 const Profile = () => {
   const [userDetails, setUserDetails] = useState<any>(null);
@@ -57,6 +58,7 @@ const Profile = () => {
             <ProfileDetail key={label} label={label} value={value} />
           ))}
         </View>
+        <Footer/>
       </View>
     </SafeAreaView>
   );

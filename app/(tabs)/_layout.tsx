@@ -44,7 +44,7 @@ const screenOptions = {
   tabBarInactiveTintColor: "#CDCDE0",
   tabBarStyle: {
     backgroundColor: "#161622",
-    borderTopWidth: 0.5,
+    borderTopWidth: 0.9,
     borderTopColor: "#232533",
     height: 70,
     shadowColor: "#000",
@@ -77,6 +77,7 @@ const TabsLayout = () => {
     { name: "create", title: "Create", icon: icons.plus },
     { name: "bookmark", title: "Pay", icon: icons.order },
     { name: "profile", title: "Profile", icon: icons.profile },
+    { name: "check", title: "Orders", icon: icons.search },
   ];
 
   return (
