@@ -1,12 +1,14 @@
+import React, { useEffect, useState } from "react";
 import {
+  SafeAreaView,
   View,
   Text,
-  SafeAreaView,
-  ActivityIndicator,
   Alert,
 } from "react-native";
-import React, { useEffect, useState } from "react";
 import { fetchUserDetails } from "@/lib/appwrite";
+import ProfileDetail from "@/components/ProfileDetail";
+import LoadingScreen from "@/components/LoadingScreen";
+import NoDataScreen from "@/components/NoDataScreen";
 
 const Profile = () => {
   const [userDetails, setUserDetails] = useState<any>(null);
@@ -30,21 +32,8 @@ const Profile = () => {
     fetchUser();
   }, []);
 
-  if (loading) {
-    return (
-      <SafeAreaView className='flex-1 bg-gray-200 justify-center items-center p-4'>
-        <ActivityIndicator size='large' color='#4A90E2' />
-      </SafeAreaView>
-    );
-  }
-
-  if (!userDetails) {
-    return (
-      <SafeAreaView className='flex-1 bg-gray-200 justify-center items-center p-4'>
-        <Text className='text-lg text-gray-600'>User details not found.</Text>
-      </SafeAreaView>
-    );
-  }
+  if (loading) return <LoadingScreen />;
+  if (!userDetails) return <NoDataScreen />;
 
   return (
     <SafeAreaView className='flex-1 bg-gray-900 p-8'>
@@ -65,12 +54,7 @@ const Profile = () => {
               value: "IIT BHU ",
             },
           ].map(({ label, value }) => (
-            <View key={label} className='mb-4'>
-              <Text className='text-lg font-semibold text-gray-700'>
-                {label}:
-              </Text>
-              <Text className='text-lg text-gray-600'>{value}</Text>
-            </View>
+            <ProfileDetail key={label} label={label} value={value} />
           ))}
         </View>
       </View>

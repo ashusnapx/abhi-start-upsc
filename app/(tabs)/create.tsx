@@ -125,7 +125,7 @@ const Create = () => {
             title='Back'
             handlePress={() => setView(null)}
             containerStyles='mt-4'
-            textStyles='text-gray-500'
+            textStyles='text-black'
           />
         </ScrollView>
       </SafeAreaView>
