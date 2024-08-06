@@ -101,7 +101,7 @@ const Bookmark = () => {
           </Text>
           <Text
             style={{ fontSize: 16, color: "#d1d5db", marginBottom: 12 }}
-            className='text-left'
+            className='text-left text-lg tracking-wide'
           >
             1. Please make sure to enter the correct{"\n"}    UPI ID while making
             payments.
