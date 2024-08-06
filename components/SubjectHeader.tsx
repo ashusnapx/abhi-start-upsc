@@ -20,7 +20,7 @@ const SubjectHeader: React.FC<SubjectHeaderProps> = ({
         resizeMode='cover'
       />
     )}
-    <Text className='text-2xl font-bold mt-2'>{subjectName}</Text>
+    <Text className='text-2xl font-bold mt-2 capitalize'>{subjectName}</Text>
     <Text className='text-lg mt-1'>Price: ₹{subjectPrice}</Text>
   </View>
 );
