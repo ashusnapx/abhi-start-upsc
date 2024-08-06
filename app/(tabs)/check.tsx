@@ -5,9 +5,13 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
+  TouchableOpacity,
+  Linking,
 } from "react-native";
 import { database, appwriteConfig } from "@/lib/appwrite";
 import Footer from "@/components/Footer";
+import CustomButton from "@/components/CustomButton";
+import { useNavigation } from "expo-router";
 
 // Define your collection IDs here
 const COLLECTIONS = {
@@ -29,13 +33,21 @@ const formatDate = (dateString: string) => {
   return date.toLocaleDateString(undefined, options);
 };
 
+const daysLeft = (expiryDate: string) => {
+  const today = new Date();
+  const expiry = new Date(expiryDate);
+  const timeDiff = expiry.getTime() - today.getTime();
+  const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+  return daysDiff >= 0 ? daysDiff : 0; // Ensure non-negative days left
+};
+
 const Check = () => {
   const [purchases, setPurchases] = useState<any[]>([]);
   const [usersMap, setUsersMap] = useState<Map<string, any>>(new Map());
   const [chaptersMap, setChaptersMap] = useState<Map<string, any>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const navigation = useNavigation();
   const fetchUsers = async (userIds: string[]) => {
     try {
       const uniqueUserIds = Array.from(new Set(userIds)); // Ensure unique IDs
@@ -48,6 +60,7 @@ const Check = () => {
               userId
             );
           }
+          return null; // Ensure a value is always returned
         })
       );
       const users = usersResponse.reduce((map, user) => {
@@ -75,6 +88,7 @@ const Check = () => {
               chapterId
             );
           }
+          return null; // Ensure a value is always returned
         })
       );
       const chapters = chaptersResponse.reduce((map, chapter) => {
@@ -137,6 +151,16 @@ const Check = () => {
     fetchPurchases();
   }, [fetchPurchases]);
 
+  const handleViewPDF = (pdfLink: string) => {
+    if (pdfLink) {
+      Linking.openURL(pdfLink);
+    }
+  };
+
+  const handleBuyNow = () => {
+    navigation.navigate("bookmark");
+  };
+
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -153,40 +177,87 @@ const Check = () => {
     );
   }
 
-  const renderItem = ({ item }: { item: any }) => (
-    <View
-      style={{ padding: 10, borderBottomWidth: 1, borderBottomColor: "#ccc" }}
-      className="mt-10"
-    >
-        <Text className="text-3xl mb-5 tracking-tighter font-psemibold">Orders</Text>
-      <Text style={{ fontSize: 18 }}>Purchase ID: {item.$id}</Text>
-      <Text>
-        User IDs:{" "}
-        {item.userId
-          .map(
-            (user: any) =>
-              `${user.$id} (${usersMap.get(user.$id)?.name || "Unknown"})`
-          )
-          .join(", ")}
-      </Text>
-      <Text>
-        Chapter ID:{" "}
-        {item.chapterId
-          .map(
-            (chapter: any) =>
-              `${chapter.$id} (${
-                chaptersMap.get(chapter.$id)?.name || "Unknown"
-              })`
-          )
-          .join(", ")}
-      </Text>
-      <Text>Purchase Date: {formatDate(item.purchaseDate)}</Text>
-      <Text>Expiry Date: {formatDate(item.expiryDate)}</Text>
-    </View>
-  );
+  const renderItem = ({ item }: { item: any }) => {
+    const validityDays = daysLeft(item.expiryDate);
+    const hasAccess = validityDays > 0;
+
+    return (
+      <View
+        style={{
+          padding: 15,
+          marginVertical: 10,
+          borderRadius: 10,
+          backgroundColor: "#f5f5f5",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 5,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 22,
+            fontWeight: "bold",
+            marginBottom: 10,
+            color: "#333",
+          }}
+          className='mt-5 mb-5 capitalize'
+        >
+          Chapter:{" "}
+          {item.chapterId
+            .map(
+              (chapter: any) => chaptersMap.get(chapter.$id)?.title || "Unknown"
+            )
+            .join(", ")}
+        </Text>
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>
+          Purchase ID: {item.$id}
+        </Text>
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>
+          User:{" "}
+          {item.userId
+            .map(
+              (user: any) =>
+                `${user.$id} (${usersMap.get(user.$id)?.name || "Unknown"})`
+            )
+            .join(", ")}
+        </Text>
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>
+          Validity: {validityDays} days left
+        </Text>
+        {hasAccess ? (
+          <CustomButton
+            title='View PDF'
+            containerStyles={{
+              backgroundColor: "#007bff",
+              padding: 10,
+              borderRadius: 5,
+              alignItems: "center",
+            }}
+            handlePress={() =>
+              item.chapterId.forEach((chapter: any) =>
+                handleViewPDF(chaptersMap.get(chapter.$id)?.pdfLink || "")
+              )
+            }
+          />
+        ) : (
+          <CustomButton
+            title='Buy Now'
+            containerStyles={{
+              backgroundColor: "#28a745",
+              padding: 10,
+              borderRadius: 5,
+              alignItems: "center",
+            }}
+            handlePress={handleBuyNow}
+          />
+        )}
+      </View>
+    );
+  };
 
   return (
-    <View style={{ flex: 1, padding: 10 }}>
+    <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
       <FlatList
         data={purchases}
         keyExtractor={(item) => item.$id}
@@ -196,7 +267,8 @@ const Check = () => {
           <RefreshControl refreshing={loading} onRefresh={onRefresh} />
         }
       />
-      <Footer/>
+      <Text className='mb-1' />
+      <Footer />
     </View>
   );
 };
