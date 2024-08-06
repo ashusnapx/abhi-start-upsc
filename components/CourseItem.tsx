@@ -22,18 +22,18 @@ const CourseItem = ({ item, buttonData }: CourseItemProps) => (
       className='w-36 h-36 rounded-lg'
       resizeMode='cover'
     />
-    <View className='flex-1 pl-4'>
-      <Text className='text-xl font-semibold text-gray-800 mb-2'>
+    <View className='flex-1 pl-3'>
+      <Text className='text-2xl font-semibold text-gray-800 mb-2'>
         {item.title}
       </Text>
-      <View className='flex-row justify-between'>
+      <View className='flex-row items-center justify-between'>
         {buttonData.map(({ bgColor, text, onPress, margin }) => (
           <Pressable
             key={text}
             onPress={() => onPress(item)}
-            className={`${bgColor} p-3 rounded-md flex-1 ${margin}`}
+            className={`${bgColor} px-3 py-2 rounded-md flex-1 ${margin}`}
           >
-            <Text className='text-white text-center text-sm font-medium'>
+            <Text className='text-white text-center whitespace-nowrap text-sm font-medium'>
               {text}
             </Text>
           </Pressable>

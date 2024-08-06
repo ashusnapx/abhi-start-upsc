@@ -67,14 +67,10 @@ const TabsLayout = () => {
   // Define the screens array
   const screens: ScreenProps[] = [
     { name: "home", title: "Home", icon: icons.home },
+    { name: "create", title: "Create", icon: icons.plus },
     { name: "bookmark", title: "Pay", icon: icons.order },
     { name: "profile", title: "Profile", icon: icons.profile },
   ];
-
-  // Add the "Create" screen if the user is an admin
-  if (userRole === "admin") {
-    screens.splice(1, 0, { name: "create", title: "Create", icon: icons.plus });
-  }
 
   return (
     <Tabs screenOptions={screenOptions}>

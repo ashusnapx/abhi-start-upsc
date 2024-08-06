@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   RefreshControl,
+  Image,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import FormField from "@/components/FormField";
@@ -12,10 +13,12 @@ import CustomButton from "@/components/CustomButton";
 import useCreateCourse from "@/hooks/useCreateCourse";
 import useCreateChapter from "@/hooks/useCreateChapter";
 import useSubjects from "@/hooks/useSubjects";
+import { fetchUserDetails } from "@/lib/appwrite";
+import useUserRole from "@/hooks/useUserRole";
 
 const Create = () => {
   const [view, setView] = useState<"course" | "chapter" | null>(null);
-
+const { role } = useUserRole();
   const {
     title,
     imageUrl,
@@ -189,16 +192,34 @@ const Create = () => {
       <Text className='text-2xl font-bold text-white mb-4 mt-8 text-center'>
         Create
       </Text>
-      <CustomButton
-        title='Create a Course'
-        handlePress={() => setView("course")}
-        containerStyles='mt-4'
-      />
-      <CustomButton
-        title='Create a Chapter'
-        handlePress={() => setView("chapter")}
-        containerStyles='mt-4'
-      />
+      {role === "admin" ? (
+        <>
+          <CustomButton
+            title='Create a Course'
+            handlePress={() => setView("course")}
+            containerStyles='mt-4'
+            disabled={role !== "admin"}
+          />
+          <CustomButton
+            title='Create a Chapter'
+            handlePress={() => setView("chapter")}
+            containerStyles='mt-4'
+            disabled={role !== "admin"}
+          />
+        </>
+      ) : (
+        <View className='flex-1 justify-center items-center'>
+          <Text className="text-xl text-center text-red-600 mb-4">This feature is only meant for admin!</Text>
+          <Image
+            source={{
+              uri: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcnJpMXNidnE2d3hjanBrdW9yZjF2emh5a3ljbXc1ZmpvdnRua2J2eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Zb4gsGCnTG6TtFBEWB/giphy.webp",
+            }} 
+            style={{ width: 500, height: 400 }} 
+            className="border rounded-md"
+            resizeMode='contain'
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 };
