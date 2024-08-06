@@ -35,7 +35,7 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      <StatusBar backgroundColor='#161622' barStyle='light-content'/>
+      <StatusBar backgroundColor='#161622' barStyle='dark-content'/>
     </SafeAreaView>
   );
 }

@@ -41,7 +41,7 @@ const Course = () => {
   };
 
   return (
-    <View className='flex-1 bg-gray-100 p-4'>
+    <View className='flex-1 bg-slate-300 p-4'>
       <FlatList
         data={chapters}
         keyExtractor={(item) => item.$id}

@@ -19,16 +19,17 @@ interface ScreenProps {
   icon: any;
 }
 
+// TabIcon component to render each tab icon
 const TabIcon = ({ icon, color, name, focused }: TabIconProps) => (
   <View className='items-center justify-center gap-y-2'>
     <Image
       source={icon}
       resizeMode='contain'
-      tintColor={color}
-      className='w-6 h-6'
+      style={{ tintColor: color }}
+      className='w-7 h-7'
     />
     <Text
-      className={`${focused ? "font-semibold" : "font-normal"} text-sm`}
+      className={`${focused ? "font-bold" : "font-medium"} text-sm`}
       style={{ color }}
     >
       {name}
@@ -36,15 +37,21 @@ const TabIcon = ({ icon, color, name, focused }: TabIconProps) => (
   </View>
 );
 
+// Screen options for the tabs
 const screenOptions = {
   tabBarShowLabel: false,
   tabBarActiveTintColor: "#FFA001",
   tabBarInactiveTintColor: "#CDCDE0",
   tabBarStyle: {
     backgroundColor: "#161622",
-    borderTopWidth: 1,
+    borderTopWidth: 0.5,
     borderTopColor: "#232533",
-    height: 65,
+    height: 70,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5,
   },
 };
 

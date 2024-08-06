@@ -1,4 +1,4 @@
-import { View, Text, Image, ScrollView } from "react-native";
+import { View, Text, Image, ScrollView, SafeAreaView } from "react-native";
 import React from "react";
 import { images } from "@/constants";
 
@@ -7,7 +7,7 @@ const Bookmark = () => {
   const upiIds = ["example1@upi", "example2@upi", "example3@upi"];
 
   return (
-    <ScrollView className=' bg-gray-900 text-white p-4'>
+    <SafeAreaView className=' bg-gray-900 text-white p-4'>
       {/* QR Code Section */}
       <View className='mt-5 mb-8 items-center'>
         <Text className='text-2xl font-bold mb-4 text-white'>
@@ -35,16 +35,16 @@ const Bookmark = () => {
         <Text className='text-xl font-semibold mb-3 text-white'>
           Rules and Regulations
         </Text>
-        <View className='bg-gray-800 mb-8 p-4 rounded-lg'>
+        <ScrollView className='bg-gray-800 mb-8 p-4 rounded-lg'>
           <Text className='text-lg text-white'>
             1. Please make sure to enter the correct UPI ID while making
             payments.
             {"\n"}2. Payments are non-refundable.
-            {"\n"}3. Contact support if you face any issues.
+            {"\n"}3. Contact support
           </Text>
-        </View>
+        </ScrollView>
       </View>
-    </ScrollView>
+    </SafeAreaView>
   );
 };
 
