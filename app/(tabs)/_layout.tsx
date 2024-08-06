@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { View, Text, Image } from "react-native";
 import { Tabs } from "expo-router";
 import { icons } from "../../constants";
+import { fetchUserDetails } from "@/lib/appwrite";
 
 // Define the properties for the TabIcon component
 interface TabIconProps {
@@ -47,29 +48,56 @@ const screenOptions = {
   },
 };
 
-const screens: ScreenProps[] = [
-  { name: "home", title: "Home", icon: icons.home },
-  { name: "create", title: "Create", icon: icons.plus },
-  { name: "bookmark", title: "Pay", icon: icons.order },
-  { name: "profile", title: "Profile", icon: icons.profile },
-];
+const TabsLayout = () => {
+  const [userRole, setUserRole] = useState<string | null>(null);
 
-const TabsLayout = () => (
-  <Tabs screenOptions={screenOptions}>
-    {screens.map(({ name, title, icon }) => (
-      <Tabs.Screen
-        key={name}
-        name={name}
-        options={{
-          title,
-          headerShown: false,
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon icon={icon} color={color} name={title} focused={focused} />
-          ),
-        }}
-      />
-    ))}
-  </Tabs>
-);
+  useEffect(() => {
+    const getUserRole = async () => {
+      try {
+        const userDetails = await fetchUserDetails();
+        setUserRole(userDetails.role);
+      } catch (error) {
+        console.error("Failed to fetch user details:", error);
+      }
+    };
+
+    getUserRole();
+  }, []);
+
+  // Define the screens array
+  const screens: ScreenProps[] = [
+    { name: "home", title: "Home", icon: icons.home },
+    { name: "bookmark", title: "Pay", icon: icons.order },
+    { name: "profile", title: "Profile", icon: icons.profile },
+  ];
+
+  // Add the "Create" screen if the user is an admin
+  if (userRole === "admin") {
+    screens.splice(1, 0, { name: "create", title: "Create", icon: icons.plus });
+  }
+
+  return (
+    <Tabs screenOptions={screenOptions}>
+      {screens.map(({ name, title, icon }) => (
+        <Tabs.Screen
+          key={name}
+          name={name}
+          options={{
+            title,
+            headerShown: false,
+            tabBarIcon: ({ color, focused }) => (
+              <TabIcon
+                icon={icon}
+                color={color}
+                name={title}
+                focused={focused}
+              />
+            ),
+          }}
+        />
+      ))}
+    </Tabs>
+  );
+};
 
 export default TabsLayout;

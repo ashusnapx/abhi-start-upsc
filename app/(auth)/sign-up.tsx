@@ -69,7 +69,7 @@ const SignUp = () => {
     try {
       const { name, email, password, role } = form;
       await createUser(email, password, name, role);
-      router.replace("/home"); // Adjust as needed
+      router.replace("/home");
     } catch (error: any) {
       const errorMessage =
         typeof error.message === "string"

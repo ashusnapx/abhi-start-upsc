@@ -34,23 +34,13 @@ export const appwriteConfig: AppwriteConfig = {
 };
 
 // Initialize the client, account, and database objects
-let client: Client;
-let account: Account;
-let database: Databases;
+const client = new Client()
+  .setEndpoint(appwriteConfig.endpoint)
+  .setProject(appwriteConfig.projectId)
+  .setPlatform(appwriteConfig.platform);
 
-const initializeAppwriteClient = (): void => {
-  client = new Client();
-  client
-    .setEndpoint(appwriteConfig.endpoint)
-    .setProject(appwriteConfig.projectId)
-    .setPlatform(appwriteConfig.platform);
-
-  account = new Account(client);
-  database = new Databases(client);
-};
-
-// Call the function to initialize the client
-initializeAppwriteClient();
+const account = new Account(client);
+const database = new Databases(client);
 
 // Function to create a user
 export const createUser = async (
@@ -100,7 +90,7 @@ export const createUser = async (
 };
 
 // Function to sign in a user
-export async function signIn(email: string, password: string) {
+export const signIn = async (email: string, password: string) => {
   try {
     const session = await account.createEmailPasswordSession(email, password);
     console.log("User signed in successfully:", session);
@@ -113,8 +103,9 @@ export async function signIn(email: string, password: string) {
     }
     throw new Error("Failed to sign in.");
   }
-}
+};
 
+// Function to fetch user details
 export const fetchUserDetails = async (): Promise<any> => {
   try {
     const user = await account.get();
@@ -133,11 +124,98 @@ export const fetchUserDetails = async (): Promise<any> => {
     }
   } catch (error) {
     console.error("Error fetching user details:", error);
-    // Make sure the error thrown has a message property
     throw new Error(
       error instanceof Error ? error.message : "An unknown error occurred."
     );
   }
 };
 
-export { account, database };
+// Function to create a purchase record
+export const createPurchase = async (
+  userId: string,
+  contentId: string,
+  contentType: "subject" | "chapter"
+) => {
+  try {
+    // Create a purchase record
+    const purchase = await database.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.purchasesCollectionId,
+      ID.unique(),
+      {
+        userId,
+        contentId,
+        contentType,
+        purchaseDate: new Date().toISOString(),
+        expiryDate: null, // Set expiry date if applicable
+      }
+    );
+    console.log("Purchase record created successfully:", purchase);
+
+    // Update user document with purchased content
+    if (contentType === "subject") {
+      await database.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.usersCollectionId,
+        userId,
+        {
+          $add: { purchasedSubjects: contentId },
+        }
+      );
+    } else if (contentType === "chapter") {
+      await database.updateDocument(
+        appwriteConfig.databaseId,
+        appwriteConfig.usersCollectionId,
+        userId,
+        {
+          $add: { purchasedChapters: contentId },
+        }
+      );
+    }
+  } catch (error) {
+    if (error instanceof AppwriteException) {
+      console.error("Error creating purchase record:", error.message);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+    throw error;
+  }
+};
+
+// Function to check access to a subject
+export const hasAccessToSubject = async (
+  userId: string,
+  subjectId: string
+): Promise<boolean> => {
+  try {
+    const userDoc = await database.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      userId
+    );
+    return userDoc.purchasedSubjects.includes(subjectId);
+  } catch (error) {
+    console.error("Error checking access to subject:", error);
+    throw error;
+  }
+};
+
+// Function to check access to a chapter
+export const hasAccessToChapter = async (
+  userId: string,
+  chapterId: string
+): Promise<boolean> => {
+  try {
+    const userDoc = await database.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.usersCollectionId,
+      userId
+    );
+    return userDoc.purchasedChapters.includes(chapterId);
+  } catch (error) {
+    console.error("Error checking access to chapter:", error);
+    throw error;
+  }
+};
+
+export { client, account, database };

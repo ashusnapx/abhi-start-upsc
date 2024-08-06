@@ -1,147 +1,121 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
   SafeAreaView,
-  Alert,
   ScrollView,
   RefreshControl,
-  StyleSheet,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
-import { database, appwriteConfig } from "@/lib/appwrite";
+import useCreateCourse from "@/hooks/useCreateCourse";
+import useCreateChapter from "@/hooks/useCreateChapter";
+import useSubjects from "@/hooks/useSubjects";
 
 const Create = () => {
   const [view, setView] = useState<"course" | "chapter" | null>(null);
-  const [title, setTitle] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [price, setPrice] = useState("");
-  const [importantFor, setImportantFor] = useState<string>("");
-  const [pyqYear, setPyqYear] = useState("");
-  const [pdfLink, setPdfLink] = useState("");
-  const [subjectId, setSubjectId] = useState<string | null>(null);
-  const [subjects, setSubjects] = useState<any[]>([]);
-  const [refreshing, setRefreshing] = useState<boolean>(false);
 
-  // Fetch subjects for the dropdown
-  const fetchSubjects = useCallback(async () => {
-    try {
-      const subjectResponse = await database.listDocuments(
-        appwriteConfig.databaseId,
-        appwriteConfig.subjectCollectionId
-      );
-      setSubjects(subjectResponse.documents);
-    } catch (error) {
-      console.error("Error fetching subjects:", error);
-    } finally {
-      setRefreshing(false);
-    }
-  }, []);
+  const {
+    title,
+    imageUrl,
+    price,
+    setTitle,
+    setImageUrl,
+    setPrice,
+    handleCreateCourse,
+  } = useCreateCourse();
 
-  useEffect(() => {
-    fetchSubjects();
-  }, [fetchSubjects]);
+  const {
+    title: chapterTitle,
+    setTitle: setChapterTitle,
+    importantFor,
+    setImportantFor,
+    pyqYear,
+    setPyqYear,
+    pdfLink,
+    setPdfLink,
+    price: chapterPrice,
+    setPrice: setChapterPrice,
+    subjectId,
+    setSubjectId,
+    handleCreateChapter,
+  } = useCreateChapter();
 
-  const handleCreateCourse = async () => {
-    try {
-      if (!title || !imageUrl || !price) {
-        Alert.alert("Error", "All fields are required.");
-        return;
-      }
+  const { subjects, refreshing, onRefresh } = useSubjects();
 
-      await database.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.subjectCollectionId,
-        "unique()", // Or any unique ID generation strategy
-        {
-          title,
-          subjectImageLink: imageUrl,
-          price: parseInt(price, 10), // Ensure price is an integer
-        }
-      );
-      Alert.alert("Success", "Course created successfully!");
-      setTitle("");
-      setImageUrl("");
-      setPrice("");
-    } catch (error) {
-      console.error("Error creating course:", error);
-      Alert.alert("Error", "Failed to create course.");
-    }
-  };
+  const courseFields = [
+    {
+      title: "Title of Subject",
+      value: title,
+      handleTextChange: setTitle,
+      placeholder: "Title of Subject",
+    },
+    {
+      title: "Image URL for Subject",
+      value: imageUrl,
+      handleTextChange: setImageUrl,
+      placeholder: "Image URL for Subject",
+    },
+    {
+      title: "Price of Subject",
+      value: price,
+      handleTextChange: setPrice,
+      placeholder: "Price of Subject",
+      keyboardType: "numeric",
+    },
+  ];
 
-  const handleCreateChapter = async () => {
-    try {
-      if (
-        !title ||
-        !importantFor ||
-        !pdfLink ||
-        !price ||
-        !subjectId ||
-        !pyqYear
-      ) {
-        Alert.alert("Error", "All fields are required.");
-        return;
-      }
+  const chapterFields = [
+    {
+      title: "Title",
+      value: chapterTitle,
+      handleTextChange: setChapterTitle,
+      placeholder: "Title",
+    },
+    {
+      title: "PYQ Year",
+      value: pyqYear,
+      handleTextChange: setPyqYear,
+      placeholder: "PYQ Year",
+      keyboardType: "numeric",
+    },
+    {
+      title: "PDF Link",
+      value: pdfLink,
+      handleTextChange: setPdfLink,
+      placeholder: "PDF Link",
+    },
+    {
+      title: "Price",
+      value: chapterPrice,
+      handleTextChange: setChapterPrice,
+      placeholder: "Price",
+      keyboardType: "numeric",
+    },
+  ];
 
-      await database.createDocument(
-        appwriteConfig.databaseId,
-        appwriteConfig.chapterCollectionId,
-        "unique()", // Or any unique ID generation strategy
-        {
-          title,
-          importantFor,
-          pdfLink,
-          pyqYear,
-          price: parseInt(price, 10), // Ensure price is an integer
-          subjectId,
-        }
-      );
-      Alert.alert("Success", "Chapter created successfully!");
-      setTitle("");
-      setImportantFor("");
-      setPdfLink("");
-      setPyqYear("");
-      setPrice("");
-      setSubjectId(null);
-    } catch (error) {
-      console.error("Error creating chapter:", error);
-      Alert.alert("Error", "Failed to create chapter.");
-    }
-  };
-
-  const onRefresh = () => {
-    setRefreshing(true);
-    fetchSubjects();
-  };
+  const renderFields = (fields: any[]) =>
+    fields.map((field, index) => (
+      <FormField
+        key={index}
+        title={field.title}
+        value={field.value}
+        handleTextChange={field.handleTextChange}
+        placeholder={field.placeholder}
+        keyboardType={field.keyboardType}
+        otherStyles={index < fields.length - 1 ? "mb-4" : ""}
+      />
+    ));
 
   if (view === "course") {
     return (
-      <SafeAreaView className='flex-1 p-4 bg-gray-900'>
+      <SafeAreaView className='flex-1 p-4 bg-gray-800'>
         <ScrollView>
-          <Text className='text-2xl font-bold mb-8 mt-12 text-white'>
+          <Text className='text-2xl font-bold text-white mb-4 mt-8 text-center'>
             Create a Course
           </Text>
-          <FormField
-            title='Title of Subject'
-            value={title}
-            handleTextChange={setTitle}
-            placeholder='Title of Subject'
-          />
-          <FormField
-            title='Image URL for Subject'
-            value={imageUrl}
-            handleTextChange={setImageUrl}
-            placeholder='Image URL for Subject'
-          />
-          <FormField
-            title='Price of Subject'
-            value={price}
-            handleTextChange={setPrice}
-            placeholder='Price of Subject'
-            keyboardType='numeric'
-          />
+          {renderFields(courseFields)}
           <CustomButton
             title='Create Course'
             handlePress={handleCreateCourse}
@@ -160,59 +134,30 @@ const Create = () => {
 
   if (view === "chapter") {
     return (
-      <SafeAreaView className='flex-1 p-4 bg-gray-900'>
+      <SafeAreaView className='flex-1 p-4 bg-gray-800'>
         <ScrollView
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
         >
-          <Text className='text-2xl font-bold mb-8 mt-12 text-white'>
+          <Text className='text-2xl font-bold text-white mb-4 mt-8 text-center'>
             Create a Chapter
           </Text>
-          <FormField
-            title='Title'
-            value={title}
-            handleTextChange={setTitle}
-            placeholder='Title'
-          />
-
+          {renderFields(chapterFields)}
           <Picker
             selectedValue={importantFor}
-            onValueChange={(itemValue) => setImportantFor(itemValue)}
-            style={styles.picker}
+            onValueChange={setImportantFor}
+            className='text-white bg-gray-700 rounded-md mb-4'
           >
             <Picker.Item label='Select Importance' value='' />
             <Picker.Item label='Pre' value='Pre' />
             <Picker.Item label='Mains' value='Mains' />
             <Picker.Item label='Pre + Mains' value='Pre + Mains' />
           </Picker>
-          <FormField
-            title='PYQ Year'
-            value={pyqYear}
-            handleTextChange={setPyqYear}
-            placeholder='PYQ Year'
-            keyboardType='numeric'
-            otherStyles='mb-4'
-          />
-          <FormField
-            title='PDF Link'
-            value={pdfLink}
-            handleTextChange={setPdfLink}
-            placeholder='PDF Link'
-            otherStyles='mb-4'
-          />
-          <FormField
-            title='Price'
-            value={price}
-            handleTextChange={setPrice}
-            placeholder='Price'
-            keyboardType='numeric'
-            otherStyles='mb-4'
-          />
           <Picker
             selectedValue={subjectId}
-            onValueChange={(itemValue) => setSubjectId(itemValue)}
-            style={styles.picker}
+            onValueChange={setSubjectId}
+            className='text-white bg-gray-700 rounded-md mb-4'
           >
             <Picker.Item label='Select Subject' value='' />
             {subjects.map((subject) => (
@@ -240,8 +185,10 @@ const Create = () => {
   }
 
   return (
-    <SafeAreaView className='flex-1 p-4 bg-gray-200 items-center justify-center'>
-      <Text className='text-2xl font-bold mb-4'>Create</Text>
+    <SafeAreaView className='flex-1 p-4 bg-gray-800'>
+      <Text className='text-2xl font-bold text-white mb-4 mt-8 text-center'>
+        Create
+      </Text>
       <CustomButton
         title='Create a Course'
         handlePress={() => setView("course")}
@@ -255,14 +202,5 @@ const Create = () => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  picker: {
-    color: "white", // Text color of Picker items
-    backgroundColor: "gray", // Background color for Picker
-    borderRadius: 4, // Optional: Add rounded corners
-    marginBottom: 16, // Optional: Add spacing
-  },
-});
 
 export default Create;
