@@ -18,7 +18,7 @@ const useSubjects = () => {
       );
       setSubjects(subjectResponse.documents as unknown as Subject[]);
     } catch (error) {
-      console.error("Error fetching subjects:", error);
+      // console.error("Error fetching subjects:", error);
     } finally {
       setRefreshing(false);
     }

@@ -23,7 +23,7 @@ const RootLayout = () => {
       try {
         await ScreenCapture.preventScreenCaptureAsync();
       } catch (error) {
-        console.error("Error preventing screen capture:", error);
+        // console.error("Error preventing screen capture:", error);
       }
     };
 

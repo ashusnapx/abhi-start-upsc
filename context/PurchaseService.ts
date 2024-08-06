@@ -12,9 +12,9 @@ export const purchaseSubject = async (userId: string, subjectId: string) => {
         $add: { purchasedSubjects: subjectId },
       }
     );
-    console.log("Subject purchased successfully");
+    // console.log("Subject purchased successfully");
   } catch (error) {
-    console.error("Error purchasing subject:", error);
+    // console.error("Error purchasing subject:", error);
     throw error;
   }
 };
@@ -31,9 +31,9 @@ export const purchaseChapter = async (userId: string, chapterId: string) => {
         $add: { purchasedChapters: chapterId },
       }
     );
-    console.log("Chapter purchased successfully");
+    // console.log("Chapter purchased successfully");
   } catch (error) {
-    console.error("Error purchasing chapter:", error);
+    // console.error("Error purchasing chapter:", error);
     throw error;
   }
 };
@@ -58,7 +58,7 @@ export const handlePayment = async (
         expiryDate: null, // Set expiry date if needed
       }
     );
-    console.log("Payment record created successfully");
+    // console.log("Payment record created successfully");
 
     // Unlock content
     if (contentType === "subject") {
@@ -67,7 +67,7 @@ export const handlePayment = async (
       await purchaseChapter(userId, contentId);
     }
   } catch (error) {
-    console.error("Error handling payment:", error);
+    // console.error("Error handling payment:", error);
     throw error;
   }
 };

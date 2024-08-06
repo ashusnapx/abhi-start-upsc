@@ -46,7 +46,7 @@ const useCreateChapter = () => {
       setPrice("");
       setSubjectId("");
     } catch (error) {
-      console.error("Error creating chapter:", error);
+      // console.error("Error creating chapter:", error);
       Alert.alert("Error", "Failed to create chapter.");
     }
   }, [title, importantFor, pyqYear, pdfLink, price, subjectId]);

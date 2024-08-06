@@ -5,10 +5,12 @@ import {
   FlatList,
   ActivityIndicator,
   RefreshControl,
-  TouchableOpacity,
-  Linking,
   Alert,
+  Modal,
+  TouchableOpacity,
+  Dimensions, // Import Dimensions
 } from "react-native";
+import { WebView } from "react-native-webview";
 import { fetchUserDetails } from "@/lib/appwrite";
 import Footer from "@/components/Footer";
 import CustomButton from "@/components/CustomButton";
@@ -49,21 +51,35 @@ const Check = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
+  const [selectedPdf, setSelectedPdf] = useState<string | null>(null); // State to hold the selected PDF
+  const [modalVisible, setModalVisible] = useState(false); // State to control modal visibility
+  const [dimensions, setDimensions] = useState(Dimensions.get("window")); // State for screen dimensions
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const onChange = (result: any) => {
+      setDimensions(result.window);
+    };
+
+    Dimensions.addEventListener("change", onChange);
+    return () => {
+      Dimensions.removeEventListener("change", onChange);
+    };
+  }, []);
 
   const fetchLoggedInUserId = async () => {
     try {
       const userDetails = await fetchUserDetails();
       setLoggedInUserId(userDetails?.$id || null);
     } catch (error) {
-      console.error("Error fetching user details:", error);
+      //   console.error("Error fetching user details:", error);
       Alert.alert("Error", "Failed to fetch user details");
     }
   };
 
-  const fetchChapters = useCallback(async (chapterIds: string[]) => {
+  const fetchChapters = async (chapterIds: string[]) => {
     try {
-      const uniqueChapterIds = Array.from(new Set(chapterIds));
+      const uniqueChapterIds = Array.from(new Set(chapterIds)); // Ensure unique IDs
       const chaptersResponse = await Promise.all(
         uniqueChapterIds.map((chapterId) => {
           if (chapterId.length <= 36) {
@@ -73,7 +89,7 @@ const Check = () => {
               chapterId
             );
           }
-          return null;
+          return null; // Ensure a value is always returned
         })
       );
       const chapters = chaptersResponse.reduce((map, chapter) => {
@@ -84,10 +100,10 @@ const Check = () => {
       }, new Map<string, any>());
       setChaptersMap(chapters);
     } catch (error) {
-      console.error("Error fetching chapters:", error);
+      //   console.error("Error fetching chapters:", error);
       setError("Error fetching chapters");
     }
-  }, []);
+  };
 
   const fetchPurchases = useCallback(async () => {
     setLoading(true);
@@ -106,6 +122,7 @@ const Check = () => {
         )
       );
 
+      // Extract chapter IDs from purchases
       const chapterIds = Array.from(
         new Set(
           purchases.flatMap(
@@ -115,6 +132,7 @@ const Check = () => {
         )
       );
 
+      // Fetch chapters details
       await fetchChapters(chapterIds);
     } catch (error) {
       console.error("Error fetching purchases:", error);
@@ -122,7 +140,7 @@ const Check = () => {
     } finally {
       setLoading(false);
     }
-  }, [loggedInUserId, fetchChapters]);
+  }, [loggedInUserId]);
 
   useEffect(() => {
     fetchLoggedInUserId();
@@ -142,7 +160,8 @@ const Check = () => {
 
   const handleViewPDF = (pdfLink: string) => {
     if (pdfLink) {
-      Linking.openURL(pdfLink);
+      setSelectedPdf(pdfLink); // Set the selected PDF link
+      setModalVisible(true); // Show the modal with the WebView
     }
   };
 
@@ -152,7 +171,7 @@ const Check = () => {
 
   if (loading) {
     return (
-      <View className='flex-1 justify-center items-center'>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator size='large' color='#0000ff' />
       </View>
     );
@@ -160,7 +179,7 @@ const Check = () => {
 
   if (error) {
     return (
-      <View className='flex-1 justify-center items-center'>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>{error}</Text>
       </View>
     );
@@ -171,8 +190,27 @@ const Check = () => {
     const hasAccess = validityDays > 0;
 
     return (
-      <View className='p-4 mb-4 rounded-lg bg-slate-400 shadow mt-12'>
-        <Text className='text-2xl font-bold mb-2 text-gray-800 font-psemibold tracking-tighter capitalize'>
+      <View
+        style={{
+          padding: 15,
+          marginVertical: 10,
+          borderRadius: 10,
+          backgroundColor: "#f5f5f5",
+          shadowColor: "#000",
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 5,
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 22,
+            fontWeight: "bold",
+            marginBottom: 10,
+            color: "#333",
+          }}
+          className='mt-9 mb-5 capitalize'
+        >
           Chapter:{" "}
           {item.chapterId
             .map(
@@ -180,20 +218,27 @@ const Check = () => {
             )
             .join(", ")}
         </Text>
-        <Text className='text-base mb-1'>Purchase ID: {item.$id}</Text>
-        <Text className='text-base mb-1'>
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>
+          Purchase ID: {item.$id}
+        </Text>
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>
           User:{" "}
           {item.userId
             .map((user: any) => `${user.$id} (${user.name || "Unknown"})`)
             .join(", ")}
         </Text>
-        <Text className='text-base mb-2 font-pmedium'>
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>
           Validity: {validityDays} days left
         </Text>
         {hasAccess ? (
           <CustomButton
             title='View PDF'
-            containerStyles=' p-2 rounded text-white text-center'
+            containerStyles={{
+              backgroundColor: "#007bff",
+              padding: 10,
+              borderRadius: 5,
+              alignItems: "center",
+            }}
             handlePress={() =>
               item.chapterId.forEach((chapter: any) =>
                 handleViewPDF(chaptersMap.get(chapter.$id)?.pdfLink || "")
@@ -203,7 +248,12 @@ const Check = () => {
         ) : (
           <CustomButton
             title='Buy Now'
-            containerStyles='bg-green-500 p-2 rounded text-white text-center'
+            containerStyles={{
+              backgroundColor: "#28a745",
+              padding: 10,
+              borderRadius: 5,
+              alignItems: "center",
+            }}
             handlePress={handleBuyNow}
           />
         )}
@@ -212,7 +262,7 @@ const Check = () => {
   };
 
   return (
-    <View className='flex-1 p-4 bg-white'>
+    <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
       <FlatList
         data={purchases}
         keyExtractor={(item) => item.$id}
@@ -222,8 +272,49 @@ const Check = () => {
           <RefreshControl refreshing={loading} onRefresh={onRefresh} />
         }
       />
-      <Text className='mb-1' />
       <Footer />
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType='slide'
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <View
+            style={{
+              width: "99%",
+              height: "99%",
+              backgroundColor: "#fff",
+              borderRadius: 10,
+            }}
+          >
+            <WebView
+              source={{ uri: selectedPdf || "" }}
+              style={{ width: dimensions.width, height: dimensions.height }}
+            />
+            <TouchableOpacity
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                backgroundColor: "#f00",
+                padding: 10,
+                borderRadius: 20,
+              }}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={{ color: "#fff", fontWeight: "bold" }}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };

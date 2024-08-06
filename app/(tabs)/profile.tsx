@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  View,
-  Text,
-  Alert,
-} from "react-native";
+import { SafeAreaView, View, Text, Alert } from "react-native";
 import { fetchUserDetails } from "@/lib/appwrite";
 import ProfileDetail from "@/components/ProfileDetail";
 import LoadingScreen from "@/components/LoadingScreen";
@@ -23,7 +18,7 @@ const Profile = () => {
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "An unknown error occurred.";
-        console.error(errorMessage);
+        // console.error(errorMessage);
         Alert.alert("Error", errorMessage);
       } finally {
         setLoading(false);
@@ -58,7 +53,7 @@ const Profile = () => {
             <ProfileDetail key={label} label={label} value={value} />
           ))}
         </View>
-        <Footer/>
+        <Footer />
       </View>
     </SafeAreaView>
   );

@@ -25,11 +25,11 @@ const SignIn = () => {
     const checkSession = async () => {
       try {
         const session = await account.getSession("current");
-        console.table("Active session found:", session); // Log session details
+        // console.table("Active session found:", session); // Log session details
         router.replace("/home"); // Redirect to home if session is active
       } catch (error) {
         router.replace("/sign-up");
-        console.table("Session check error:", error); // Log session check errors
+        // console.table("Session check error:", error); // Log session check errors
         // Here you can handle cases where the session is not found or is invalid
       }
     };

@@ -28,7 +28,7 @@ export const useFetchSubject = (subjectId: string | undefined) => {
         setError("Subject not found");
       }
     } catch (error) {
-      console.error("Error fetching subject:", error);
+      // console.error("Error fetching subject:", error);
       setError("Failed to load subject");
     }
   }, [subjectId]);

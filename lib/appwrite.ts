@@ -55,7 +55,7 @@ export const createUser = async (
     if (!newAccount) {
       throw new AppwriteException("Failed to create user account.");
     }
-    console.log("User account created successfully:", newAccount);
+    // console.log("User account created successfully:", newAccount);
 
     // Step 2: Authenticate the user immediately after account creation
     await signIn(email, password);
@@ -77,13 +77,13 @@ export const createUser = async (
         purchasedChapters: [],
       }
     );
-    console.log("User document created successfully:", newUser);
+    // console.log("User document created successfully:", newUser);
     return newUser;
   } catch (error) {
     if (error instanceof AppwriteException) {
-      console.error("Error creating user account:", error.message);
+      // console.error("Error creating user account:", error.message);
     } else {
-      console.error("Unexpected error:", error);
+      // console.error("Unexpected error:", error);
     }
     throw error;
   }
@@ -93,13 +93,13 @@ export const createUser = async (
 export const signIn = async (email: string, password: string) => {
   try {
     const session = await account.createEmailPasswordSession(email, password);
-    console.log("User signed in successfully:", session);
+    // console.log("User signed in successfully:", session);
     return session;
   } catch (error) {
     if (error instanceof AppwriteException) {
-      console.error("Error signing in:", error.message);
+      // console.error("Error signing in:", error.message);
     } else {
-      console.error("Unexpected error during sign-in:", error);
+      // console.error("Unexpected error during sign-in:", error);
     }
     throw new Error("Failed to sign in.");
   }
@@ -123,7 +123,7 @@ export const fetchUserDetails = async (): Promise<any> => {
       throw new Error("User document not found.");
     }
   } catch (error) {
-    console.error("Error fetching user details:", error);
+    // console.error("Error fetching user details:", error);
     throw new Error(
       error instanceof Error ? error.message : "An unknown error occurred."
     );
@@ -150,7 +150,7 @@ export const createPurchase = async (
         expiryDate: null, // Set expiry date if applicable
       }
     );
-    console.log("Purchase record created successfully:", purchase);
+    // console.log("Purchase record created successfully:", purchase);
 
     // Update user document with purchased content
     if (contentType === "subject") {
@@ -174,9 +174,9 @@ export const createPurchase = async (
     }
   } catch (error) {
     if (error instanceof AppwriteException) {
-      console.error("Error creating purchase record:", error.message);
+      // console.error("Error creating purchase record:", error.message);
     } else {
-      console.error("Unexpected error:", error);
+      // console.error("Unexpected error:", error);
     }
     throw error;
   }
@@ -195,7 +195,7 @@ export const hasAccessToSubject = async (
     );
     return userDoc.purchasedSubjects.includes(subjectId);
   } catch (error) {
-    console.error("Error checking access to subject:", error);
+    // console.error("Error checking access to subject:", error);
     throw error;
   }
 };
@@ -213,7 +213,7 @@ export const hasAccessToChapter = async (
     );
     return userDoc.purchasedChapters.includes(chapterId);
   } catch (error) {
-    console.error("Error checking access to chapter:", error);
+    // console.error("Error checking access to chapter:", error);
     throw error;
   }
 };

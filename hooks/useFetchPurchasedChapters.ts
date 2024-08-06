@@ -16,7 +16,7 @@ export const useFetchPurchasedChapters = () => {
         appwriteConfig.databaseId,
         appwriteConfig.purchasesCollectionId
       );
-      console.log("Purchases Response:", purchasesResponse);
+      // console.log("Purchases Response:", purchasesResponse);
 
       // Fetch chapters
       const chaptersResponse = await database.listDocuments(

@@ -64,7 +64,7 @@ const TabsLayout = () => {
         const userDetails = await fetchUserDetails();
         setUserRole(userDetails.role);
       } catch (error) {
-        console.error("Failed to fetch user details:", error);
+        // console.error("Failed to fetch user details:", error);
       }
     };
 
