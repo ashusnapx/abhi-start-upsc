@@ -7,11 +7,13 @@ import {
   RefreshControl,
   TouchableOpacity,
   Linking,
+  Alert,
 } from "react-native";
-import { database, appwriteConfig } from "@/lib/appwrite";
+import { fetchUserDetails } from "@/lib/appwrite";
 import Footer from "@/components/Footer";
 import CustomButton from "@/components/CustomButton";
 import { useNavigation } from "expo-router";
+import { database, appwriteConfig } from "@/lib/appwrite";
 
 // Define your collection IDs here
 const COLLECTIONS = {
@@ -43,42 +45,25 @@ const daysLeft = (expiryDate: string) => {
 
 const Check = () => {
   const [purchases, setPurchases] = useState<any[]>([]);
-  const [usersMap, setUsersMap] = useState<Map<string, any>>(new Map());
   const [chaptersMap, setChaptersMap] = useState<Map<string, any>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [loggedInUserId, setLoggedInUserId] = useState<string | null>(null);
   const navigation = useNavigation();
-  const fetchUsers = async (userIds: string[]) => {
+
+  const fetchLoggedInUserId = async () => {
     try {
-      const uniqueUserIds = Array.from(new Set(userIds)); // Ensure unique IDs
-      const usersResponse = await Promise.all(
-        uniqueUserIds.map((userId) => {
-          if (userId.length <= 36) {
-            return database.getDocument(
-              appwriteConfig.databaseId,
-              COLLECTIONS.users,
-              userId
-            );
-          }
-          return null; // Ensure a value is always returned
-        })
-      );
-      const users = usersResponse.reduce((map, user) => {
-        if (user) {
-          map.set(user.$id, user);
-        }
-        return map;
-      }, new Map<string, any>());
-      setUsersMap(users);
+      const userDetails = await fetchUserDetails();
+      setLoggedInUserId(userDetails?.$id || null);
     } catch (error) {
-      console.error("Error fetching users:", error);
-      setError("Error fetching users");
+      console.error("Error fetching user details:", error);
+      Alert.alert("Error", "Failed to fetch user details");
     }
   };
 
-  const fetchChapters = async (chapterIds: string[]) => {
+  const fetchChapters = useCallback(async (chapterIds: string[]) => {
     try {
-      const uniqueChapterIds = Array.from(new Set(chapterIds)); // Ensure unique IDs
+      const uniqueChapterIds = Array.from(new Set(chapterIds));
       const chaptersResponse = await Promise.all(
         uniqueChapterIds.map((chapterId) => {
           if (chapterId.length <= 36) {
@@ -88,7 +73,7 @@ const Check = () => {
               chapterId
             );
           }
-          return null; // Ensure a value is always returned
+          return null;
         })
       );
       const chapters = chaptersResponse.reduce((map, chapter) => {
@@ -102,7 +87,7 @@ const Check = () => {
       console.error("Error fetching chapters:", error);
       setError("Error fetching chapters");
     }
-  };
+  }, []);
 
   const fetchPurchases = useCallback(async () => {
     setLoading(true);
@@ -113,17 +98,14 @@ const Check = () => {
       );
 
       const purchases = response.documents;
-      setPurchases(purchases);
-
-      // Extract user IDs and chapter IDs from purchases
-      const userIds = Array.from(
-        new Set(
-          purchases.flatMap(
-            (purchase: any) =>
-              purchase.userId.map((user: any) => user.$id) || []
-          )
+      setPurchases(
+        purchases.filter(
+          (purchase) =>
+            loggedInUserId &&
+            purchase.userId.some((user: any) => user.$id === loggedInUserId)
         )
       );
+
       const chapterIds = Array.from(
         new Set(
           purchases.flatMap(
@@ -133,23 +115,30 @@ const Check = () => {
         )
       );
 
-      // Fetch users and chapters details
-      await Promise.all([fetchUsers(userIds), fetchChapters(chapterIds)]);
+      await fetchChapters(chapterIds);
     } catch (error) {
       console.error("Error fetching purchases:", error);
       setError("Error fetching purchases");
     } finally {
       setLoading(false);
     }
+  }, [loggedInUserId, fetchChapters]);
+
+  useEffect(() => {
+    fetchLoggedInUserId();
   }, []);
 
   useEffect(() => {
-    fetchPurchases();
-  }, [fetchPurchases]);
+    if (loggedInUserId) {
+      fetchPurchases();
+    }
+  }, [loggedInUserId, fetchPurchases]);
 
   const onRefresh = useCallback(() => {
-    fetchPurchases();
-  }, [fetchPurchases]);
+    if (loggedInUserId) {
+      fetchPurchases();
+    }
+  }, [loggedInUserId, fetchPurchases]);
 
   const handleViewPDF = (pdfLink: string) => {
     if (pdfLink) {
@@ -163,7 +152,7 @@ const Check = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View className='flex-1 justify-center items-center'>
         <ActivityIndicator size='large' color='#0000ff' />
       </View>
     );
@@ -171,7 +160,7 @@ const Check = () => {
 
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <View className='flex-1 justify-center items-center'>
         <Text>{error}</Text>
       </View>
     );
@@ -182,27 +171,8 @@ const Check = () => {
     const hasAccess = validityDays > 0;
 
     return (
-      <View
-        style={{
-          padding: 15,
-          marginVertical: 10,
-          borderRadius: 10,
-          backgroundColor: "#f5f5f5",
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 2 },
-          shadowOpacity: 0.1,
-          shadowRadius: 5,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 22,
-            fontWeight: "bold",
-            marginBottom: 10,
-            color: "#333",
-          }}
-          className='mt-5 mb-5 capitalize'
-        >
+      <View className='p-4 mb-4 rounded-lg bg-slate-400 shadow mt-12'>
+        <Text className='text-2xl font-bold mb-2 text-gray-800 font-psemibold tracking-tighter capitalize'>
           Chapter:{" "}
           {item.chapterId
             .map(
@@ -210,30 +180,20 @@ const Check = () => {
             )
             .join(", ")}
         </Text>
-        <Text style={{ fontSize: 16, marginBottom: 5 }}>
-          Purchase ID: {item.$id}
-        </Text>
-        <Text style={{ fontSize: 16, marginBottom: 5 }}>
+        <Text className='text-base mb-1'>Purchase ID: {item.$id}</Text>
+        <Text className='text-base mb-1'>
           User:{" "}
           {item.userId
-            .map(
-              (user: any) =>
-                `${user.$id} (${usersMap.get(user.$id)?.name || "Unknown"})`
-            )
+            .map((user: any) => `${user.$id} (${user.name || "Unknown"})`)
             .join(", ")}
         </Text>
-        <Text style={{ fontSize: 16, marginBottom: 5 }}>
+        <Text className='text-base mb-2 font-pmedium'>
           Validity: {validityDays} days left
         </Text>
         {hasAccess ? (
           <CustomButton
             title='View PDF'
-            containerStyles={{
-              backgroundColor: "#007bff",
-              padding: 10,
-              borderRadius: 5,
-              alignItems: "center",
-            }}
+            containerStyles=' p-2 rounded text-white text-center'
             handlePress={() =>
               item.chapterId.forEach((chapter: any) =>
                 handleViewPDF(chaptersMap.get(chapter.$id)?.pdfLink || "")
@@ -243,12 +203,7 @@ const Check = () => {
         ) : (
           <CustomButton
             title='Buy Now'
-            containerStyles={{
-              backgroundColor: "#28a745",
-              padding: 10,
-              borderRadius: 5,
-              alignItems: "center",
-            }}
+            containerStyles='bg-green-500 p-2 rounded text-white text-center'
             handlePress={handleBuyNow}
           />
         )}
@@ -257,7 +212,7 @@ const Check = () => {
   };
 
   return (
-    <View style={{ flex: 1, padding: 10, backgroundColor: "#fff" }}>
+    <View className='flex-1 p-4 bg-white'>
       <FlatList
         data={purchases}
         keyExtractor={(item) => item.$id}
