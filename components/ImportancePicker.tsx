@@ -1,20 +1,19 @@
 import React from "react";
 import { Picker } from "@react-native-picker/picker";
-import { StyleSheet } from "react-native";
 
 interface ImportancePickerProps {
   selectedImportance: string;
   onValueChange: (value: string) => void;
 }
 
-const ImportancePicker: React.FC<ImportancePickerProps> = ({
+const ImportancePicker = ({
   selectedImportance,
   onValueChange,
-}) => (
+}: ImportancePickerProps) => (
   <Picker
     selectedValue={selectedImportance}
     onValueChange={onValueChange}
-    style={styles.picker}
+    className='text-white bg-gray-700 rounded-lg mb-4 p-3'
   >
     <Picker.Item label='Select Importance' value='' />
     <Picker.Item label='Pre' value='Pre' />
@@ -22,14 +21,5 @@ const ImportancePicker: React.FC<ImportancePickerProps> = ({
     <Picker.Item label='Pre + Mains' value='Pre + Mains' />
   </Picker>
 );
-
-const styles = StyleSheet.create({
-  picker: {
-    color: "white",
-    backgroundColor: "gray",
-    borderRadius: 4,
-    marginBottom: 16,
-  },
-});
 
 export default ImportancePicker;

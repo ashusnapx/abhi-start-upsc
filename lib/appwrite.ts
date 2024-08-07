@@ -74,7 +74,7 @@ export const createUser = async (
         isActive: true,
         subscriptionEnd: null,
         purchasedSubjects: [],
-        purchasedChapters: [],
+        purchaseChapters: [],
       }
     );
     // console.log("User document created successfully:", newUser);

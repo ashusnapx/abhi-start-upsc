@@ -52,7 +52,7 @@ const Home = () => {
   return (
     <SafeAreaView className='bg-gray-900 flex-1 p-4 antialiased'>
       <View className='mb-6'>
-        <Text className='text-3xl font-bold text-center text-white mt-9 mb-2 tracking-tighter'>
+        <Text className='text-3xl font-bold text-center text-white mt-9 mb-2 tracking-tighter capitalize'>
           Welcome, {userName || "User"}!
         </Text>
         <Text className='text-center text-gray-400'>

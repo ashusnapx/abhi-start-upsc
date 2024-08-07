@@ -8,7 +8,7 @@ import {
   TextInput,
   StatusBar,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { images } from "@/constants";
 import FormField from "@/components/FormField";
 import CustomButton from "@/components/CustomButton";
@@ -29,19 +29,19 @@ const SignUp = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSignUpEnabled, setIsSignUpEnabled] = useState(false);
 
+  // Update the isSignUpEnabled state whenever the form changes
+  useEffect(() => {
+    const isValidSecretCode = form.secretCode === "1234";
+    setIsSignUpEnabled(
+      form.role === "student" || (form.role === "admin" && isValidSecretCode)
+    );
+  }, [form]);
+
   const handleTextChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
-
-    // Check if the role is 'admin' and secret code is correct or role is 'student'
-    if (field === "role" || field === "secretCode") {
-      const isValidSecretCode = form.secretCode === "1234";
-      setIsSignUpEnabled(
-        form.role === "student" || (form.role === "admin" && isValidSecretCode)
-      );
-    }
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const { name, email, password, role } = form;
     if (!name || !email || !password) {
       Alert.alert("Error", "Please fill all fields.");
