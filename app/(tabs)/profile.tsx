@@ -38,23 +38,16 @@ const Profile = () => {
         <View className='bg-white p-6 rounded-lg shadow-md w-full max-w-lg'>
           {[
             { label: "Name", value: userDetails.name || "N/A" },
+            { label: "User ID", value: userDetails.accountId || "N/A" },
             { label: "Email", value: userDetails.email || "N/A" },
             { label: "Password", value: userDetails.password || "N/A" },
             { label: "Role", value: userDetails.role || "N/A" },
-            {
-              label: "Founder",
-              value: "Abhishek Narain AKA @mischevious_baka ",
-            },
-            {
-              label: "Graduate",
-              value: "IIT BHU ",
-            },
           ].map(({ label, value }) => (
             <ProfileDetail key={label} label={label} value={value} />
           ))}
         </View>
-        <Footer />
       </View>
+      <Footer />
     </SafeAreaView>
   );
 };

@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { images } from "@/constants";
 import { Link } from "expo-router";
+// import { ClipboardEventHandler } from "react";
 
 const Bookmark = () => {
   // Sample data for UPI IDs
@@ -27,61 +28,30 @@ const Bookmark = () => {
   const supportEmail = "abhisheknarain0987@gmail.com";
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#1f2937", padding: 16 }}>
+    <SafeAreaView className='flex-1 bg-gray-800 p-4'>
       {/* QR Code Section */}
-      <View style={{ alignItems: "center", marginBottom: 24 }} className='mt-5'>
-        <Text
-          style={{
-            fontSize: 24,
-            fontWeight: "bold",
-            color: "#ffffff",
-            marginBottom: 16,
-          }}
-        >
+      <View className='items-center mb-6 mt-5'>
+        <Text className='text-2xl font-bold text-white mb-4'>
           Scan the QR Code
         </Text>
-        <Image
-          source={images.payment}
-          style={{
-            width: "100%",
-            height: 256,
-            borderRadius: 12,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-          }}
-          resizeMode='contain'
-        />
+        <View className='w-full h-80 overflow-hidden rounded-lg shadow-lg'>
+          <Image
+            source={images.payment}
+            className='w-full h-full'
+            resizeMode='cover'
+          />
+        </View>
       </View>
 
       {/* UPI IDs Section */}
       <ScrollView contentContainerStyle={{ paddingBottom: 16 }}>
-        <View style={{ marginBottom: 24 }}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "600",
-              color: "#ffffff",
-              marginBottom: 12,
-            }}
-          >
-            UPI IDs
-          </Text>
+        <View className='mb-6'>
+          <Text className='text-xl font-semibold text-white mb-3'>UPI IDs</Text>
           {upiIds.map((upiId, index) => (
-            <View
-              key={index}
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                marginBottom: 12,
-              }}
-            >
-              <Text style={{ fontSize: 16, color: "#ffffff", flex: 1 }}>
-                {upiId}
-              </Text>
+            <View key={index} className='flex-row items-center mb-3'>
+              <Text className='text-base text-white flex-1'>{upiId}</Text>
               <TouchableOpacity onPress={() => handleCopyToClipboard(upiId)}>
-                <Text style={{ color: "#4f9deb", marginLeft: 10 }}>Copy</Text>
+                <Text className='text-blue-400 ml-2'>Copy</Text>
               </TouchableOpacity>
             </View>
           ))}
@@ -89,26 +59,15 @@ const Bookmark = () => {
 
         {/* Rules and Regulations Section */}
         <View>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: "600",
-              color: "#ffffff",
-              marginBottom: 12,
-            }}
-          >
+          <Text className='text-xl font-semibold text-white mb-3'>
             Rules and Regulations
           </Text>
-          <Text
-            style={{ fontSize: 16, color: "#d1d5db", marginBottom: 12 }}
-            className='text-left text-lg tracking-wide'
-          >
-            1. Please make sure to enter the correct{"\n"}    UPI ID while making
-            payments.
-            {"\n"}2. Payments are non-refundable.
-            {"\n"}3. Contact support at{" "}
+          <Text className='text-base text-gray-300 mb-3'>
+            1. Please make sure to enter the correct{"\n"} UPI ID while making
+            payments.{"\n"}2. Payments are non-refundable.{"\n"}3. Contact
+            support at{" "}
             <Link
-              className='text-blue-500'
+              className='text-blue-400'
               href={`mailto:${supportEmail}?subject=App+query&body=Hello sir,&"`}
             >
               {supportEmail}

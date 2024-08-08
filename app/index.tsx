@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { images } from "../constants";
 import CustomButton from "@/components/CustomButton";
+import Footer from "@/components/Footer";
 
 export default function HomeScreen() {
   return (
@@ -19,7 +20,7 @@ export default function HomeScreen() {
         <View className='flex items-center justify-center h-full'>
           <Image
             source={images.logoNew}
-            className='w-[150px] h-[150px] object-cover mb-5'
+            className='w-[250px] h-[250px] object-cover mb-8'
             resizeMode='contain'
           />
           <ThemedText className='text-2xl text-center px-4 tracking-tighter text-slate-200'>
@@ -28,13 +29,13 @@ export default function HomeScreen() {
           </ThemedText>
 
           <CustomButton
-            title='Continue with an email'
+            title='Enter App'
             handlePress={() => router.push('/sign-in')}
             containerStyles='w-[300px] mt-10'
           />
         </View>
       </ScrollView>
-
+<Footer/>
       <StatusBar backgroundColor='#161622' barStyle='dark-content'/>
     </SafeAreaView>
   );

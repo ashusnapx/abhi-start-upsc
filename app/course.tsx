@@ -67,6 +67,7 @@ const Course = () => {
             chapter={item}
             isPurchased={item.isPurchased}
             onViewPDF={handleViewPDF}
+            onBuyNow={() => {}}
           />
         )}
         ListEmptyComponent={() => (

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   FlatList,
@@ -13,15 +13,21 @@ import useFetchData from "@/hooks/useFetchData";
 import CourseItem from "@/components/CourseItem";
 import LoadingScreen from "@/components/LoadingScreen";
 import Footer from "@/components/Footer";
+import SearchBar from "@/components/SearchBar";
 
 const Home = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const { userName, subjects, loading, refreshing, setRefreshing, fetchData } =
     useFetchData();
+  const [filteredSubjects, setFilteredSubjects] = useState(subjects);
 
   useEffect(() => {
     fetchData();
   }, [fetchData]);
+
+  useEffect(() => {
+    setFilteredSubjects(subjects);
+  }, [subjects]);
 
   const handleViewCourse = (item: any) => {
     navigation.navigate("course", { subjectId: item.id });
@@ -47,6 +53,18 @@ const Home = () => {
     fetchData();
   };
 
+  const handleSearch = (text: string) => {
+    if (text.trim() === "") {
+      setFilteredSubjects(subjects);
+    } else {
+      const lowercasedText = text.toLowerCase();
+      const filtered = subjects.filter((subject) =>
+        subject.title.toLowerCase().includes(lowercasedText)
+      );
+      setFilteredSubjects(filtered);
+    }
+  };
+
   if (loading) return <LoadingScreen />;
 
   return (
@@ -59,8 +77,12 @@ const Home = () => {
           Explore our latest courses and get started today.
         </Text>
       </View>
+      <SearchBar
+        data={subjects.map((subject) => subject.title)}
+        onSearch={handleSearch}
+      />
       <FlatList
-        data={subjects}
+        data={filteredSubjects}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <CourseItem item={item} buttonData={buttonData} />
